@@ -17,7 +17,7 @@ return new class extends Migration
             $table->decimal('vat_amount', 10, 2)->default(0);
             $table->decimal('shipping_ht', 10, 2)->default(0);
             $table->decimal('total_ttc', 10, 2)->default(0);
-            $table->json('shipping_address')->default('{}');
+            $table->json('shipping_address')->nullable();
             $table->string('tracking_number')->nullable();
             $table->string('carrier')->nullable();
             $table->text('notes')->nullable();

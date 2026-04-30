@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('moq')->default(1);
             $table->integer('pack_size')->default(1);
             $table->integer('stock')->default(0);
-            $table->json('images')->default('[]');
+            $table->json('images')->nullable();
             $table->string('material')->nullable();
             $table->string('finish')->nullable();
             $table->string('tag')->nullable();

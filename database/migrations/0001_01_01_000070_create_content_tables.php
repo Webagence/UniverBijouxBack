@@ -33,14 +33,14 @@ return new class extends Migration
         Schema::create('content_blocks', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
-            $table->json('data')->default('{}');
+            $table->json('data')->nullable();
             $table->timestamps();
         });
 
         Schema::create('site_settings', function (Blueprint $table) {
             $table->id();
             $table->string('key')->unique();
-            $table->json('value')->default('{}');
+            $table->json('value')->nullable();
             $table->timestamps();
         });
     }
