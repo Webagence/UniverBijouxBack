@@ -44,6 +44,17 @@ class ContentController extends Controller
     public function settings(): JsonResponse
     {
         $settings = SiteSetting::all()->pluck('value', 'key');
-        return response()->json(['settings' => $settings]);
+        // Flatten nested settings (e.g. 'general' key)
+        $flat = [];
+        foreach ($settings as $key => $value) {
+            if (is_array($value)) {
+                foreach ($value as $k => $v) {
+                    $flat[$k] = $v;
+                }
+            } else {
+                $flat[$key] = $value;
+            }
+        }
+        return response()->json(['settings' => $flat]);
     }
 }

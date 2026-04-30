@@ -33,4 +33,15 @@ class Universe extends Model
     {
         return $this->products()->where('active', true)->count();
     }
+
+    public function getImageUrlAttribute($value): ?string
+    {
+        if ($value) {
+            if (filter_var($value, FILTER_VALIDATE_URL)) {
+                return $value;
+            }
+            return asset($value);
+        }
+        return asset("images/products/{$this->slug}.jpg");
+    }
 }

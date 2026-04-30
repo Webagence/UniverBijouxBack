@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Universe;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -33,6 +34,8 @@ class ProductController extends Controller
         $products = $query->orderBy('created_at', 'desc')
             ->paginate($request->get('per_page', 20));
 
+        $products->getCollection()->transform(fn($p) => $this->formatProduct($p));
+
         return response()->json($products);
     }
 
@@ -43,7 +46,7 @@ class ProductController extends Controller
             ->with('universe')
             ->firstOrFail();
 
-        return response()->json(['product' => $product]);
+        return response()->json(['product' => $this->formatProduct($product)]);
     }
 
     public function universes(): JsonResponse
@@ -52,7 +55,20 @@ class ProductController extends Controller
             $query->where('active', true);
         }])
             ->orderBy('display_order')
-            ->get();
+            ->get()
+            ->map(function ($u) {
+                return [
+                    'id' => $u->id,
+                    'slug' => $u->slug,
+                    'name' => $u->name,
+                    'description' => $u->description,
+                    'image_url' => $u->image_url
+                        ? $this->storageUrl($u->image_url)
+                        : asset("images/products/{$u->slug}.jpg"),
+                    'display_order' => $u->display_order,
+                    'products_count' => $u->products_count,
+                ];
+            });
 
         return response()->json(['universes' => $universes]);
     }
@@ -66,7 +82,8 @@ class ProductController extends Controller
             ->with('universe')
             ->orderBy('created_at', 'desc')
             ->limit($limit)
-            ->get();
+            ->get()
+            ->map(fn($p) => $this->formatProduct($p));
 
         return response()->json(['products' => $products]);
     }
@@ -79,8 +96,66 @@ class ProductController extends Controller
             ->where('tag', 'Best-seller')
             ->with('universe')
             ->limit($limit)
-            ->get();
+            ->get()
+            ->map(fn($p) => $this->formatProduct($p));
 
         return response()->json(['products' => $products]);
+    }
+
+    private function storageUrl(string $path): string
+    {
+        if (filter_var($path, FILTER_VALIDATE_URL)) {
+            return $path;
+        }
+        $path = ltrim($path, '/');
+        if (str_starts_with($path, 'storage/')) {
+            return asset($path);
+        }
+        return Storage::disk('public')->url($path);
+    }
+
+    private function formatProduct(Product $product): array
+    {
+        $images = $product->images;
+
+        if (is_array($images) && count($images) > 0) {
+            $images = array_map(fn($img) => $this->storageUrl($img), $images);
+        } else {
+            $universeSlug = $product->universe?->slug ?? 'colliers';
+            $images = [asset("images/products/{$universeSlug}.jpg")];
+        }
+
+        return [
+            'id' => $product->id,
+            'slug' => $product->slug,
+            'name' => $product->name,
+            'reference' => $product->reference,
+            'description' => $product->description,
+            'universe_id' => $product->universe_id,
+            'price_ht' => $product->price_ht,
+            'retail_ttc' => $product->retail_ttc,
+            'vat_rate' => $product->vat_rate,
+            'moq' => $product->moq,
+            'pack_size' => $product->pack_size,
+            'stock' => $product->stock,
+            'images' => $images,
+            'material' => $product->material,
+            'finish' => $product->finish,
+            'tag' => $product->tag,
+            'is_new' => $product->is_new,
+            'active' => $product->active,
+            'created_at' => $product->created_at,
+            'updated_at' => $product->updated_at,
+            'universe' => $product->universe ? [
+                'id' => $product->universe->id,
+                'slug' => $product->universe->slug,
+                'name' => $product->universe->name,
+                'description' => $product->universe->description,
+                'image_url' => $product->universe->image_url
+                    ? $this->storageUrl($product->universe->image_url)
+                    : asset("images/products/{$product->universe->slug}.jpg"),
+                'display_order' => $product->universe->display_order,
+            ] : null,
+        ];
     }
 }

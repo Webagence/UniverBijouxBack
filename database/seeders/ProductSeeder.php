@@ -46,6 +46,7 @@ class ProductSeeder extends Seeder
         ];
 
         foreach ($products as $data) {
+            $universeSlug = Universe::find($data['universe_id'])?->slug ?? 'colliers';
             Product::create([
                 'name' => $data['name'],
                 'universe_id' => $data['universe_id'],
@@ -55,6 +56,7 @@ class ProductSeeder extends Seeder
                 'moq' => 3,
                 'pack_size' => 3,
                 'stock' => $data['stock'],
+                'images' => ["storage/images/products/{$universeSlug}.jpg"],
                 'material' => 'Laiton doré à l\'or fin 3 microns',
                 'finish' => 'Finition mate & brillante',
                 'description' => 'Pièce signature fabriquée à la main dans notre atelier parisien. Or recyclé, pierres éthiques, finitions soignées. Livré en écrin Maison Lune.',

@@ -27,10 +27,10 @@ Route::prefix('content')->group(function () {
 // Public product routes
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
-    Route::get('/{slug}', [ProductController::class, 'show']);
     Route::get('/universes', [ProductController::class, 'universes']);
     Route::get('/new-arrivals', [ProductController::class, 'newArrivals']);
     Route::get('/bestsellers', [ProductController::class, 'bestsellers']);
+    Route::get('/{slug}', [ProductController::class, 'show']);
 });
 
 // Protected routes (require authentication)

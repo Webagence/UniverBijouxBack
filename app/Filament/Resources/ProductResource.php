@@ -133,7 +133,10 @@ class ProductResource extends Resource
                     ->label('Image')
                     ->circular()
                     ->size(50)
-                    ->limit(1),
+                    ->limit(1)
+                    ->defaultImageUrl(fn (Product $record) => $record->universe?->slug
+                        ? asset("images/products/{$record->universe->slug}.jpg")
+                        : null),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable()
