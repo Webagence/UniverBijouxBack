@@ -1,17 +1,35 @@
 <x-filament-panels::page>
     {{-- Hero Section --}}
     <x-filament::section heading="Section Hero (Page d'accueil)" description="Contenu de la bannière principale">
-        <x-filament-forms::file-upload
-            wire:model="heroImage"
-            label="Image de fond"
-            image
-            directory="content/hero"
-            :image-preview-height="200"
-            :max-width="400"
-            accepted-file-types="['image/jpeg', 'image/png', 'image/webp']"
-        />
+        {{-- Hero Image Upload --}}
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2">Image de fond</label>
+            @if($heroImage)
+                <div class="relative inline-block mb-3">
+                    <img src="{{ $heroImage }}" class="h-40 object-cover rounded-lg border">
+                    <button
+                        type="button"
+                        wire:click="removeHeroImage"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    >×</button>
+                </div>
+            @endif
+            <input
+                type="file"
+                wire:model="heroImageFile"
+                accept="image/jpeg,image/png,image/webp"
+                class="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-primary-50 file:text-primary-700
+                    hover:file:bg-primary-100"
+            />
+            <p class="text-xs text-gray-500 mt-1">JPEG, PNG ou WebP (max 5MB)</p>
+            @error('heroImageFile') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+        </div>
 
-        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <x-filament::input.wrapper label="Surtitre (Eyebrow)">
                 <x-filament::input
                     type="text"
@@ -130,17 +148,35 @@
 
     {{-- Atelier Section --}}
     <x-filament::section heading="Section Atelier" description="Contenu de la section savoir-faire / atelier" class="mt-8">
-        <x-filament-forms::file-upload
-            wire:model="atelierImage"
-            label="Image de l'atelier"
-            image
-            directory="content/atelier"
-            :image-preview-height="200"
-            :max-width="400"
-            accepted-file-types="['image/jpeg', 'image/png', 'image/webp']"
-        />
+        {{-- Atelier Image Upload --}}
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2">Image de l'atelier</label>
+            @if($atelierImage)
+                <div class="relative inline-block mb-3">
+                    <img src="{{ $atelierImage }}" class="h-40 object-cover rounded-lg border">
+                    <button
+                        type="button"
+                        wire:click="removeAtelierImage"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                    >×</button>
+                </div>
+            @endif
+            <input
+                type="file"
+                wire:model="atelierImageFile"
+                accept="image/jpeg,image/png,image/webp"
+                class="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-lg file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-primary-50 file:text-primary-700
+                    hover:file:bg-primary-100"
+            />
+            <p class="text-xs text-gray-500 mt-1">JPEG, PNG ou WebP (max 5MB)</p>
+            @error('atelierImageFile') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+        </div>
 
-        <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <x-filament::input.wrapper label="Surtitre (Eyebrow)">
                 <x-filament::input
                     type="text"

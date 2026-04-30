@@ -3,14 +3,15 @@
 namespace App\Filament\Pages;
 
 use App\Models\ContentBlock;
-use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
 
 class ManageContent extends Page
 {
+    use WithFileUploads;
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationLabel = 'Pages & Contenu';
@@ -28,6 +29,10 @@ class ManageContent extends Page
     public ?string $heroImage = null;
 
     public ?string $atelierImage = null;
+
+    public $heroImageFile = null;
+
+    public $atelierImageFile = null;
 
     public function mount(): void
     {
@@ -47,14 +52,14 @@ class ManageContent extends Page
 
     public function saveHero(): void
     {
-        $this->validate([
-            'heroData.titleLine1' => 'required|string',
-            'heroData.titleEm' => 'required|string',
-            'heroData.titleLine2' => 'required|string',
-        ]);
-
-        if ($this->heroImage) {
+        if ($this->heroImageFile) {
+            $this->validate([
+                'heroImageFile' => 'image|max:5120',
+            ]);
+            $path = $this->heroImageFile->store('content/hero', 'public');
+            $this->heroImage = Storage::url($path);
             $this->heroData['image'] = $this->heroImage;
+            $this->heroImageFile = null;
         }
 
         ContentBlock::updateOrCreate(
@@ -70,13 +75,14 @@ class ManageContent extends Page
 
     public function saveAtelier(): void
     {
-        $this->validate([
-            'atelierData.title' => 'required|string',
-            'atelierData.titleEm' => 'required|string',
-        ]);
-
-        if ($this->atelierImage) {
+        if ($this->atelierImageFile) {
+            $this->validate([
+                'atelierImageFile' => 'image|max:5120',
+            ]);
+            $path = $this->atelierImageFile->store('content/atelier', 'public');
+            $this->atelierImage = Storage::url($path);
             $this->atelierData['image'] = $this->atelierImage;
+            $this->atelierImageFile = null;
         }
 
         ContentBlock::updateOrCreate(
@@ -88,20 +94,6 @@ class ManageContent extends Page
             ->title('Section Atelier enregistrée')
             ->success()
             ->send();
-    }
-
-    public function handleHeroImageUpload($file): void
-    {
-        $path = $file->store('content/hero', 'public');
-        $this->heroImage = Storage::url($path);
-        $this->heroData['image'] = $this->heroImage;
-    }
-
-    public function handleAtelierImageUpload($file): void
-    {
-        $path = $file->store('content/atelier', 'public');
-        $this->atelierImage = Storage::url($path);
-        $this->atelierData['image'] = $this->atelierImage;
     }
 
     public function removeHeroImage(): void
