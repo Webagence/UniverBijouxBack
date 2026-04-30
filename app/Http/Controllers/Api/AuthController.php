@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -34,7 +35,8 @@ class AuthController extends Controller
             'phone' => $request->phone,
         ]);
 
-        $user->roles()->create(['name' => 'pro']);
+        $proRole = Role::firstOrCreate(['name' => 'pro']);
+        $user->roles()->attach($proRole);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
