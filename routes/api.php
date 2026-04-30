@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\OrderController;
@@ -61,5 +62,41 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::middleware('role:admin')->prefix('uploads')->group(function () {
         Route::post('/image', [UploadController::class, 'image']);
         Route::post('/multiple', [UploadController::class, 'multiple']);
+    });
+
+    // Admin routes
+    Route::middleware('role:admin')->prefix('admin')->group(function () {
+        // Accounts
+        Route::get('/accounts', [AdminController::class, 'accounts']);
+        Route::put('/accounts/{id}/approve', [AdminController::class, 'toggleApproveAccount']);
+        Route::delete('/accounts/{id}', [AdminController::class, 'deleteAccount']);
+
+        // Orders
+        Route::get('/orders', [AdminController::class, 'orders']);
+        Route::put('/orders/{id}/status', [AdminController::class, 'updateOrderStatus']);
+
+        // Products
+        Route::get('/products', [AdminController::class, 'products']);
+        Route::post('/products', [AdminController::class, 'storeProduct']);
+        Route::put('/products/{id}', [AdminController::class, 'updateProduct']);
+        Route::delete('/products/{id}', [AdminController::class, 'deleteProduct']);
+
+        // Universes
+        Route::get('/universes', [AdminController::class, 'universes']);
+        Route::post('/universes', [AdminController::class, 'storeUniverse']);
+        Route::put('/universes/{id}', [AdminController::class, 'updateUniverse']);
+        Route::delete('/universes/{id}', [AdminController::class, 'deleteUniverse']);
+
+        // Content
+        Route::put('/content/hero', [AdminController::class, 'updateHero']);
+        Route::put('/content/atelier', [AdminController::class, 'updateAtelier']);
+        Route::put('/settings', [AdminController::class, 'updateSettings']);
+
+        // Testimonials & FAQ
+        Route::post('/testimonials/sync', [AdminController::class, 'syncTestimonials']);
+        Route::post('/faq/sync', [AdminController::class, 'syncFaq']);
+
+        // Tickets
+        Route::get('/tickets', [AdminController::class, 'tickets']);
     });
 });
