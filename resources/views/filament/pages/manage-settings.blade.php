@@ -132,13 +132,14 @@
         <div class="mt-6">
             <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Pied de page (Footer)</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <x-filament::input.wrapper label="Texte de copyright">
+                <x-filament::input.wrapper label="Texte de marque (copyright)">
                     <x-filament::input
                         type="text"
-                        wire:model="data.copyright"
-                        placeholder="© 2026 UNIVER BIJOUX · Grossiste B2B"
+                        wire:model="data.footerBrand"
+                        placeholder="UNIVER BIJOUX"
                     />
                 </x-filament::input.wrapper>
+                <p class="text-xs text-gray-400 dark:text-gray-500 self-end">L'année © est ajoutée automatiquement. Résultat : © 2026 UNIVER BIJOUX · Grossiste B2B</p>
 
                 <x-filament::input.wrapper label="SIRET">
                     <x-filament::input

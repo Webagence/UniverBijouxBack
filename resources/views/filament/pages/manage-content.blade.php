@@ -565,8 +565,8 @@
     <x-filament::section heading="Pages légales" description="Contenu des pages Mentions légales, CGV, Confidentialité et Livraison" class="mt-8">
         <div class="space-y-8">
             {{-- Mentions légales --}}
-            <div class="p-4 border rounded-lg space-y-4 dark:border-gray-700">
-                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Mentions légales</h3>
+            <div class="p-4 border rounded-lg space-y-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Mentions légales</h3>
                 <x-filament::input.wrapper label="Titre">
                     <x-filament::input
                         type="text"
@@ -575,11 +575,11 @@
                     />
                 </x-filament::input.wrapper>
                 <div class="space-y-3">
-                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300">Sections</h4>
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Sections</h4>
                     @foreach($legalContentData['legal']['sections'] ?? [] as $index => $section)
-                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded space-y-2">
+                        <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg space-y-2 bg-gray-50 dark:bg-gray-800">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Section {{ $index + 1 }}</span>
+                                <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">Section {{ $index + 1 }}</span>
                             </div>
                             <x-filament::input.wrapper label="Titre de section">
                                 <x-filament::input
@@ -602,8 +602,8 @@
             </div>
 
             {{-- CGV --}}
-            <div class="p-4 border rounded-lg space-y-4 dark:border-gray-700">
-                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Conditions générales de vente (CGV)</h3>
+            <div class="p-4 border rounded-lg space-y-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Conditions générales de vente (CGV)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-filament::input.wrapper label="Surtitre (Eyebrow)">
                         <x-filament::input
@@ -628,11 +628,11 @@
                     </x-filament::input.wrapper>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300">Sections</h4>
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Sections</h4>
                     @foreach($legalContentData['cgv']['sections'] ?? [] as $index => $section)
-                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded space-y-2">
+                        <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg space-y-2 bg-gray-50 dark:bg-gray-800">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Section {{ $index + 1 }}</span>
+                                <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">Section {{ $index + 1 }}</span>
                             </div>
                             <x-filament::input.wrapper label="Titre de section">
                                 <x-filament::input
@@ -655,8 +655,8 @@
             </div>
 
             {{-- Confidentialité --}}
-            <div class="p-4 border rounded-lg space-y-4 dark:border-gray-700">
-                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Politique de confidentialité</h3>
+            <div class="p-4 border rounded-lg space-y-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Politique de confidentialité</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-filament::input.wrapper label="Titre">
                         <x-filament::input
@@ -674,11 +674,11 @@
                     </x-filament::input.wrapper>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300">Sections</h4>
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Sections</h4>
                     @foreach($legalContentData['privacy']['sections'] ?? [] as $index => $section)
-                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded space-y-2">
+                        <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg space-y-2 bg-gray-50 dark:bg-gray-800">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Section {{ $index + 1 }}</span>
+                                <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">Section {{ $index + 1 }}</span>
                             </div>
                             <x-filament::input.wrapper label="Titre de section">
                                 <x-filament::input
@@ -701,8 +701,8 @@
             </div>
 
             {{-- Livraison --}}
-            <div class="p-4 border rounded-lg space-y-4 dark:border-gray-700">
-                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Livraison & retours</h3>
+            <div class="p-4 border rounded-lg space-y-4 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100">Livraison & retours</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-filament::input.wrapper label="Surtitre (Eyebrow)">
                         <x-filament::input
@@ -727,11 +727,11 @@
                     </x-filament::input.wrapper>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300">Sections</h4>
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300">Sections</h4>
                     @foreach($legalContentData['shipping']['sections'] ?? [] as $index => $section)
-                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded space-y-2">
+                        <div class="p-3 border border-gray-200 dark:border-gray-700 rounded-lg space-y-2 bg-gray-50 dark:bg-gray-800">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Section {{ $index + 1 }}</span>
+                                <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">Section {{ $index + 1 }}</span>
                             </div>
                             <x-filament::input.wrapper label="Titre de section">
                                 <x-filament::input

@@ -67,6 +67,8 @@ class ManageSettings extends Page
             'data.email' => 'nullable|email',
             'data.phone' => 'nullable|string|max:20',
             'data.freeShippingFrom' => 'nullable|numeric|min:0',
+            'data.footerBrand' => 'nullable|string|max:255',
+            'data.siret' => 'nullable|string|max:50',
             'logoFile' => 'nullable|image|max:5120',
             'announcements.*' => 'nullable|string|max:255',
         ]);
