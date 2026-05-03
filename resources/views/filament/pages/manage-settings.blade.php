@@ -1,8 +1,8 @@
 <x-filament-panels::page>
     <x-filament::section heading="Paramètres généraux du site">
         <div class="mb-6">
-            <h3 class="text-lg font-medium mb-4">Identité visuelle</h3>
-            <p class="text-sm text-gray-500 mb-4">
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Identité visuelle</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
                 Choisissez d'afficher un logo image ou le nom du site en texte. Si les deux sont définis, le logo est prioritaire.
             </p>
 
@@ -15,7 +15,7 @@
                             placeholder="MAISON LUNE"
                         />
                     </x-filament::input.wrapper>
-                    <p class="text-xs text-gray-400 mt-1">Affiché si aucun logo n'est uploadé.</p>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">Affiché si aucun logo n'est uploadé.</p>
                 </div>
 
                 <div>
@@ -33,7 +33,7 @@
                 <x-filament::input.wrapper label="Logo du site (image)">
                     @if($logoUrl)
                         <div class="flex items-center gap-4 mt-2">
-                            <img src="{{ $logoUrl }}" alt="Logo" class="h-16 w-auto object-contain border rounded bg-gray-50 p-2" />
+                            <img src="{{ $logoUrl }}" alt="Logo" class="h-16 w-auto object-contain border rounded bg-gray-50 dark:bg-gray-800 p-2" />
                             <x-filament::button wire:click="removeLogo" color="danger" size="sm">
                                 Supprimer le logo
                             </x-filament::button>
@@ -49,12 +49,12 @@
                 @error('logoFile')
                     <p class="text-sm text-danger-600 mt-1">{{ $message }}</p>
                 @enderror
-                <p class="text-xs text-gray-400 mt-1">PNG, JPG ou SVG. Max 5 MB. Prioritaire sur le texte.</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">PNG, JPG ou SVG. Max 5 MB. Prioritaire sur le texte.</p>
             </div>
         </div>
 
         <div class="mt-6">
-            <h3 class="text-lg font-medium mb-4">Coordonnées</h3>
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Coordonnées</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <x-filament::input.wrapper label="Email de contact">
                     <x-filament::input
@@ -85,7 +85,7 @@
         </div>
 
         <div class="mt-6">
-            <h3 class="text-lg font-medium mb-4">Livraison</h3>
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Livraison</h3>
             <x-filament::input.wrapper label="Franco de port à partir de (€ HT)">
                 <x-filament::input
                     type="number"
@@ -101,15 +101,65 @@
         </div>
 
         <div class="mt-6">
-            <h3 class="text-lg font-medium mb-4">Annonces (bandeau)</h3>
-            <p class="text-sm text-gray-500 mb-3">
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Réseaux sociaux</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <x-filament::input.wrapper label="Instagram (URL)">
+                    <x-filament::input
+                        type="url"
+                        wire:model="data.socialInstagram"
+                        placeholder="https://instagram.com/maisonlune"
+                    />
+                </x-filament::input.wrapper>
+
+                <x-filament::input.wrapper label="Facebook (URL)">
+                    <x-filament::input
+                        type="url"
+                        wire:model="data.socialFacebook"
+                        placeholder="https://facebook.com/maisonlune"
+                    />
+                </x-filament::input.wrapper>
+
+                <x-filament::input.wrapper label="LinkedIn (URL)">
+                    <x-filament::input
+                        type="url"
+                        wire:model="data.socialLinkedin"
+                        placeholder="https://linkedin.com/company/maisonlune"
+                    />
+                </x-filament::input.wrapper>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Pied de page (Footer)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <x-filament::input.wrapper label="Texte de copyright">
+                    <x-filament::input
+                        type="text"
+                        wire:model="data.copyright"
+                        placeholder="© 2026 UNIVER BIJOUX · Grossiste B2B"
+                    />
+                </x-filament::input.wrapper>
+
+                <x-filament::input.wrapper label="SIRET">
+                    <x-filament::input
+                        type="text"
+                        wire:model="data.siret"
+                        placeholder="123 456 789 00012"
+                    />
+                </x-filament::input.wrapper>
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Annonces (bandeau)</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
                 Chaque ligne est une annonce affichée en bandeau sur le site. Ajoutez ou supprimez des annonces à volonté.
             </p>
 
             <div class="space-y-3">
                 @foreach($announcements as $index => $announcement)
                     <div class="flex items-center gap-3">
-                        <span class="text-sm text-gray-400 w-6 text-right">{{ $index + 1 }}</span>
+                        <span class="text-sm text-gray-400 dark:text-gray-500 w-6 text-right">{{ $index + 1 }}</span>
                         <x-filament::input
                             type="text"
                             wire:model="announcements.{{ $index }}"

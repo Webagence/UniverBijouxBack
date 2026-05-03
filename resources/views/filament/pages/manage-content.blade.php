@@ -92,7 +92,7 @@
         </div>
 
         <div class="mt-6">
-            <h3 class="text-lg font-medium mb-4">Statistiques</h3>
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Statistiques</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <x-filament::input.wrapper label="Stat 1 - Valeur">
                     <x-filament::input
@@ -241,11 +241,11 @@
         </div>
 
         <div class="mt-6">
-            <h3 class="text-lg font-medium mb-4">Statistiques (3 badges)</h3>
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Statistiques (3 badges)</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 @for($i = 0; $i < 3; $i++)
-                    <div class="p-3 border rounded-lg space-y-2">
-                        <span class="text-xs font-medium text-gray-500">Badge {{ $i + 1 }}</span>
+                    <div class="p-3 border rounded-lg space-y-2 dark:border-gray-700">
+                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Badge {{ $i + 1 }}</span>
                         <x-filament::input.wrapper label="Label">
                             <x-filament::input
                                 type="text"
@@ -276,9 +276,9 @@
     <x-filament::section heading="Section Promesses (Accueil)" description="Les 4 engagements affichés sur la page d'accueil" class="mt-8">
         <div class="space-y-4">
             @foreach($promisesData as $index => $promise)
-                <div class="p-4 border rounded-lg space-y-3">
+                <div class="p-4 border rounded-lg space-y-3 dark:border-gray-700">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-medium text-gray-500">Promesse {{ $index + 1 }}</span>
+                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Promesse {{ $index + 1 }}</span>
                         <x-filament::button wire:click="removePromise({{ $index }})" color="danger" size="sm" outlined>
                             <x-heroicon-m-trash class="w-4 h-4" />
                         </x-filament::button>
@@ -565,8 +565,8 @@
     <x-filament::section heading="Pages légales" description="Contenu des pages Mentions légales, CGV, Confidentialité et Livraison" class="mt-8">
         <div class="space-y-8">
             {{-- Mentions légales --}}
-            <div class="p-4 border rounded-lg space-y-4">
-                <h3 class="text-lg font-medium text-gray-700">Mentions légales</h3>
+            <div class="p-4 border rounded-lg space-y-4 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Mentions légales</h3>
                 <x-filament::input.wrapper label="Titre">
                     <x-filament::input
                         type="text"
@@ -575,11 +575,11 @@
                     />
                 </x-filament::input.wrapper>
                 <div class="space-y-3">
-                    <h4 class="text-sm font-medium text-gray-600">Sections</h4>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300">Sections</h4>
                     @foreach($legalContentData['legal']['sections'] ?? [] as $index => $section)
-                        <div class="p-3 bg-gray-50 rounded space-y-2">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded space-y-2">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500">Section {{ $index + 1 }}</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Section {{ $index + 1 }}</span>
                             </div>
                             <x-filament::input.wrapper label="Titre de section">
                                 <x-filament::input
@@ -590,8 +590,9 @@
                             </x-filament::input.wrapper>
                             <x-filament::input.wrapper label="Contenu">
                                 <x-filament::input
-                                    type="text"
+                                    type="textarea"
                                     wire:model="legalContentData.legal.sections.{{ $index }}.body"
+                                    rows="2"
                                     placeholder="Contenu de la section"
                                 />
                             </x-filament::input.wrapper>
@@ -601,8 +602,8 @@
             </div>
 
             {{-- CGV --}}
-            <div class="p-4 border rounded-lg space-y-4">
-                <h3 class="text-lg font-medium text-gray-700">Conditions générales de vente (CGV)</h3>
+            <div class="p-4 border rounded-lg space-y-4 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Conditions générales de vente (CGV)</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-filament::input.wrapper label="Surtitre (Eyebrow)">
                         <x-filament::input
@@ -627,11 +628,11 @@
                     </x-filament::input.wrapper>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-sm font-medium text-gray-600">Sections</h4>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300">Sections</h4>
                     @foreach($legalContentData['cgv']['sections'] ?? [] as $index => $section)
-                        <div class="p-3 bg-gray-50 rounded space-y-2">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded space-y-2">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500">Section {{ $index + 1 }}</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Section {{ $index + 1 }}</span>
                             </div>
                             <x-filament::input.wrapper label="Titre de section">
                                 <x-filament::input
@@ -642,8 +643,9 @@
                             </x-filament::input.wrapper>
                             <x-filament::input.wrapper label="Contenu">
                                 <x-filament::input
-                                    type="text"
+                                    type="textarea"
                                     wire:model="legalContentData.cgv.sections.{{ $index }}.body"
+                                    rows="2"
                                     placeholder="Contenu de la section"
                                 />
                             </x-filament::input.wrapper>
@@ -653,8 +655,8 @@
             </div>
 
             {{-- Confidentialité --}}
-            <div class="p-4 border rounded-lg space-y-4">
-                <h3 class="text-lg font-medium text-gray-700">Politique de confidentialité</h3>
+            <div class="p-4 border rounded-lg space-y-4 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Politique de confidentialité</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-filament::input.wrapper label="Titre">
                         <x-filament::input
@@ -672,11 +674,11 @@
                     </x-filament::input.wrapper>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-sm font-medium text-gray-600">Sections</h4>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300">Sections</h4>
                     @foreach($legalContentData['privacy']['sections'] ?? [] as $index => $section)
-                        <div class="p-3 bg-gray-50 rounded space-y-2">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded space-y-2">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500">Section {{ $index + 1 }}</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Section {{ $index + 1 }}</span>
                             </div>
                             <x-filament::input.wrapper label="Titre de section">
                                 <x-filament::input
@@ -687,8 +689,9 @@
                             </x-filament::input.wrapper>
                             <x-filament::input.wrapper label="Contenu">
                                 <x-filament::input
-                                    type="text"
+                                    type="textarea"
                                     wire:model="legalContentData.privacy.sections.{{ $index }}.body"
+                                    rows="2"
                                     placeholder="Contenu de la section"
                                 />
                             </x-filament::input.wrapper>
@@ -698,8 +701,8 @@
             </div>
 
             {{-- Livraison --}}
-            <div class="p-4 border rounded-lg space-y-4">
-                <h3 class="text-lg font-medium text-gray-700">Livraison & retours</h3>
+            <div class="p-4 border rounded-lg space-y-4 dark:border-gray-700">
+                <h3 class="text-lg font-medium text-gray-700 dark:text-gray-200">Livraison & retours</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <x-filament::input.wrapper label="Surtitre (Eyebrow)">
                         <x-filament::input
@@ -724,11 +727,11 @@
                     </x-filament::input.wrapper>
                 </div>
                 <div class="space-y-3">
-                    <h4 class="text-sm font-medium text-gray-600">Sections</h4>
+                    <h4 class="text-sm font-medium text-gray-600 dark:text-gray-300">Sections</h4>
                     @foreach($legalContentData['shipping']['sections'] ?? [] as $index => $section)
-                        <div class="p-3 bg-gray-50 rounded space-y-2">
+                        <div class="p-3 bg-gray-50 dark:bg-gray-800/50 rounded space-y-2">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-gray-500">Section {{ $index + 1 }}</span>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Section {{ $index + 1 }}</span>
                             </div>
                             <x-filament::input.wrapper label="Titre de section">
                                 <x-filament::input
@@ -739,8 +742,9 @@
                             </x-filament::input.wrapper>
                             <x-filament::input.wrapper label="Contenu">
                                 <x-filament::input
-                                    type="text"
+                                    type="textarea"
                                     wire:model="legalContentData.shipping.sections.{{ $index }}.body"
+                                    rows="2"
                                     placeholder="Contenu de la section"
                                 />
                             </x-filament::input.wrapper>
