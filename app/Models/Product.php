@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -41,6 +42,24 @@ class Product extends Model
             'is_new' => 'boolean',
             'active' => 'boolean',
         ];
+    }
+
+    public function getThumbnailUrlAttribute(): ?string
+    {
+        if (is_array($this->images) && count($this->images) > 0) {
+            $path = $this->images[0];
+            if (str_starts_with($path, 'http')) {
+                return $path;
+            }
+            if (str_starts_with($path, 'storage/')) {
+                return asset($path);
+            }
+            return Storage::disk('public')->url($path);
+        }
+        if ($this->universe?->slug) {
+            return asset("storage/images/products/{$this->universe->slug}.jpg");
+        }
+        return null;
     }
 
     protected static function boot(): void

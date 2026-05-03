@@ -114,13 +114,14 @@ class ProductResource extends Resource
                         FileUpload::make('images')
                             ->label('Images du produit')
                             ->image()
+                            ->disk('public')
                             ->directory('products')
                             ->multiple()
                             ->reorderable()
                             ->maxFiles(10)
                             ->maxSize(5120)
-                            ->panelLayout('grid')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->default([]),
                     ]),
             ]);
     }
@@ -129,14 +130,10 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('images')
+                Tables\Columns\ImageColumn::make('thumbnail_url')
                     ->label('Image')
                     ->circular()
-                    ->size(50)
-                    ->limit(1)
-                    ->defaultImageUrl(fn (Product $record) => $record->universe?->slug
-                        ? asset("images/products/{$record->universe->slug}.jpg")
-                        : null),
+                    ->size(50),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable()
