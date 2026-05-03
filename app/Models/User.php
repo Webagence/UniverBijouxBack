@@ -18,6 +18,14 @@ class User extends Authenticatable
         'password',
         'phone',
         'approved',
+        'company_name',
+        'siret',
+        'contact_name',
+        'address',
+        'city',
+        'postal_code',
+        'country',
+        'vat_number',
     ];
 
     protected $hidden = [
@@ -72,5 +80,23 @@ class User extends Authenticatable
     public function ticketMessages()
     {
         return $this->hasMany(TicketMessage::class, 'author_id');
+    }
+
+    public function getProfileAttribute(): array
+    {
+        return [
+            'id' => $this->id,
+            'email' => $this->email,
+            'company_name' => $this->company_name ?? '',
+            'siret' => $this->siret ?? '',
+            'contact_name' => $this->contact_name ?? $this->name,
+            'phone' => $this->phone ?? '',
+            'address' => $this->address ?? '',
+            'city' => $this->city ?? '',
+            'postal_code' => $this->postal_code ?? '',
+            'country' => $this->country ?? 'France',
+            'vat_number' => $this->vat_number ?? '',
+            'approved' => $this->approved,
+        ];
     }
 }

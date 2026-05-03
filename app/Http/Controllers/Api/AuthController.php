@@ -22,6 +22,7 @@ class AuthController extends Controller
             'phone' => 'nullable|string|max:20',
             'company_name' => 'nullable|string|max:255',
             'siret' => 'nullable|string|max:14',
+            'contact_name' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -33,6 +34,9 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'phone' => $request->phone,
+            'company_name' => $request->company_name,
+            'siret' => $request->siret,
+            'contact_name' => $request->contact_name ?? $request->name,
         ]);
 
         $proRole = Role::firstOrCreate(['name' => 'pro']);
@@ -43,6 +47,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Account created successfully. Awaiting admin approval.',
             'user' => $user->load('roles'),
+            'profile' => $user->profile,
             'token' => $token,
         ], 201);
     }
@@ -80,8 +85,11 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
+        $user = $request->user()->load('roles');
+
         return response()->json([
-            'user' => $request->user()->load('roles'),
+            'user' => $user,
+            'profile' => $user->profile,
         ]);
     }
 
@@ -91,7 +99,15 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:20',
+            'company_name' => 'nullable|string|max:255',
+            'siret' => 'nullable|string|max:14',
+            'address' => 'nullable|string|max:255',
+            'city' => 'nullable|string|max:255',
+            'postal_code' => 'nullable|string|max:10',
+            'country' => 'nullable|string|max:255',
+            'vat_number' => 'nullable|string|max:50',
         ]);
 
         if ($validator->fails()) {
@@ -103,6 +119,7 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'Profile updated',
             'user' => $user->load('roles'),
+            'profile' => $user->profile,
         ]);
     }
 }
