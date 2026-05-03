@@ -24,7 +24,7 @@ class ManageSettings extends Page
 
     public ?array $data = [];
 
-    public ?string $announcementsText = '';
+    public array $announcements = [''];
 
     public ?string $logoUrl = null;
 
@@ -41,8 +41,22 @@ class ManageSettings extends Page
         $this->data = $settings?->value ?? [];
         $this->logoUrl = $this->data['logo'] ?? null;
 
-        if (isset($this->data['announcements']) && is_array($this->data['announcements'])) {
-            $this->announcementsText = implode("\n", $this->data['announcements']);
+        if (isset($this->data['announcements']) && is_array($this->data['announcements']) && count($this->data['announcements']) > 0) {
+            $this->announcements = $this->data['announcements'];
+        } else {
+            $this->announcements = [''];
+        }
+    }
+
+    public function addAnnouncement(): void
+    {
+        $this->announcements[] = '';
+    }
+
+    public function removeAnnouncement(int $index): void
+    {
+        if (count($this->announcements) > 1) {
+            array_splice($this->announcements, $index, 1);
         }
     }
 
@@ -54,6 +68,7 @@ class ManageSettings extends Page
             'data.phone' => 'nullable|string|max:20',
             'data.freeShippingFrom' => 'nullable|numeric|min:0',
             'logoFile' => 'nullable|image|max:5120',
+            'announcements.*' => 'nullable|string|max:255',
         ]);
 
         if ($this->logoFile) {
@@ -63,13 +78,10 @@ class ManageSettings extends Page
             $this->logoFile = null;
         }
 
-        if ($this->announcementsText) {
-            $this->data['announcements'] = array_filter(
-                array_map('trim', explode("\n", $this->announcementsText))
-            );
-        } else {
-            $this->data['announcements'] = [];
-        }
+        $this->data['announcements'] = array_values(array_filter(
+            array_map('trim', $this->announcements),
+            fn($a) => $a !== ''
+        ));
 
         SiteSetting::updateOrCreate(
             ['key' => 'general'],

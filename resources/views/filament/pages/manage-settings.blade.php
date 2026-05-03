@@ -102,17 +102,35 @@
 
         <div class="mt-6">
             <h3 class="text-lg font-medium mb-4">Annonces (bandeau)</h3>
-            <x-filament::input.wrapper label="Annonces (une par ligne)">
-                <x-filament::input
-                    type="textarea"
-                    wire:model="announcementsText"
-                    rows="6"
-                    placeholder="Réservé aux professionnels&#10;Prix HT — TVA 20%&#10;Franco de port dès 300€ HT&#10;Fabrication française&#10;Tarifs dégressifs&#10;Livraison 48h"
-                />
-            </x-filament::input.wrapper>
-            <p class="text-sm text-gray-500 mt-1">
-                Chaque ligne correspond à une annonce affichée en bandeau sur le site.
+            <p class="text-sm text-gray-500 mb-3">
+                Chaque ligne est une annonce affichée en bandeau sur le site. Ajoutez ou supprimez des annonces à volonté.
             </p>
+
+            <div class="space-y-3">
+                @foreach($announcements as $index => $announcement)
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-gray-400 w-6 text-right">{{ $index + 1 }}</span>
+                        <x-filament::input
+                            type="text"
+                            wire:model="announcements.{{ $index }}"
+                            placeholder="Ex : Réservé aux professionnels"
+                            class="flex-1"
+                        />
+                        @if(count($announcements) > 1)
+                            <x-filament::button wire:click="removeAnnouncement({{ $index }})" color="danger" size="sm" outlined>
+                                <x-heroicon-m-trash class="w-4 h-4" />
+                            </x-filament::button>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+
+            <div class="mt-3">
+                <x-filament::button wire:click="addAnnouncement" color="gray" size="sm" outlined>
+                    <x-heroicon-m-plus class="w-4 h-4 mr-1" />
+                    Ajouter une annonce
+                </x-filament::button>
+            </div>
         </div>
 
         <div class="mt-6 flex justify-end">
