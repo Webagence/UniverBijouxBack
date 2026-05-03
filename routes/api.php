@@ -22,6 +22,14 @@ Route::prefix('content')->group(function () {
     Route::get('/testimonials', [ContentController::class, 'testimonials']);
     Route::get('/faq', [ContentController::class, 'faq']);
     Route::get('/settings', [ContentController::class, 'settings']);
+    Route::get('/promises', [ContentController::class, 'promises']);
+    Route::get('/categories_section', [ContentController::class, 'categoriesSection']);
+    Route::get('/product_grid_section', [ContentController::class, 'productGridSection']);
+    Route::get('/new_by_universe_section', [ContentController::class, 'newByUniverseSection']);
+    Route::get('/testimonials_section', [ContentController::class, 'testimonialsSection']);
+    Route::get('/legal/{page}', [ContentController::class, 'legalPage']);
+    Route::get('/contact_page', [ContentController::class, 'contactPage']);
+    Route::get('/faq_page_header', [ContentController::class, 'faqPageHeader']);
 });
 
 // Public product routes

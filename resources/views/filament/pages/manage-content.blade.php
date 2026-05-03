@@ -240,9 +240,518 @@
             </x-filament::input.wrapper>
         </div>
 
+        <div class="mt-6">
+            <h3 class="text-lg font-medium mb-4">Statistiques (3 badges)</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                @for($i = 0; $i < 3; $i++)
+                    <div class="p-3 border rounded-lg space-y-2">
+                        <span class="text-xs font-medium text-gray-500">Badge {{ $i + 1 }}</span>
+                        <x-filament::input.wrapper label="Label">
+                            <x-filament::input
+                                type="text"
+                                wire:model="atelierData.stats.{{ $i }}.0"
+                                placeholder="Or recyclé"
+                            />
+                        </x-filament::input.wrapper>
+                        <x-filament::input.wrapper label="Valeur">
+                            <x-filament::input
+                                type="text"
+                                wire:model="atelierData.stats.{{ $i }}.1"
+                                placeholder="100%"
+                            />
+                        </x-filament::input.wrapper>
+                    </div>
+                @endfor
+            </div>
+        </div>
+
         <div class="mt-6 flex justify-end">
             <x-filament::button wire:click="saveAtelier" color="primary">
                 Enregistrer la section Atelier
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
+    {{-- Promises Section --}}
+    <x-filament::section heading="Section Promesses (Accueil)" description="Les 4 engagements affichés sur la page d'accueil" class="mt-8">
+        <div class="space-y-4">
+            @foreach($promisesData as $index => $promise)
+                <div class="p-4 border rounded-lg space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-medium text-gray-500">Promesse {{ $index + 1 }}</span>
+                        <x-filament::button wire:click="removePromise({{ $index }})" color="danger" size="sm" outlined>
+                            <x-heroicon-m-trash class="w-4 h-4" />
+                        </x-filament::button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <x-filament::input.wrapper label="Icône (Lucide)">
+                            <x-filament::input
+                                type="text"
+                                wire:model="promisesData.{{ $index }}.icon"
+                                placeholder="Truck"
+                            />
+                        </x-filament::input.wrapper>
+                        <x-filament::input.wrapper label="Titre">
+                            <x-filament::input
+                                type="text"
+                                wire:model="promisesData.{{ $index }}.title"
+                                placeholder="Livraison 48h"
+                            />
+                        </x-filament::input.wrapper>
+                        <x-filament::input.wrapper label="Description">
+                            <x-filament::input
+                                type="text"
+                                wire:model="promisesData.{{ $index }}.text"
+                                placeholder="Franco dès 300€ HT"
+                            />
+                        </x-filament::input.wrapper>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+        <div class="mt-4 flex justify-between">
+            <x-filament::button wire:click="addPromise" color="gray" size="sm" outlined>
+                <x-heroicon-m-plus class="w-4 h-4 mr-1" />
+                Ajouter une promesse
+            </x-filament::button>
+            <x-filament::button wire:click="savePromises" color="primary">
+                Enregistrer les promesses
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
+    {{-- Categories Section Header --}}
+    <x-filament::section heading="Section Catégories (Accueil)" description="Titre et description de la section univers" class="mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-filament::input.wrapper label="Surtitre (Eyebrow)">
+                <x-filament::input
+                    type="text"
+                    wire:model="categoriesSectionData.eyebrow"
+                    placeholder="Univers"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre - Partie 1">
+                <x-filament::input
+                    type="text"
+                    wire:model="categoriesSectionData.heading"
+                    placeholder="Explorez nos"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre - Mise en avant (or)">
+                <x-filament::input
+                    type="text"
+                    wire:model="categoriesSectionData.headingEm"
+                    placeholder="collections"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Description">
+                <x-filament::input
+                    type="text"
+                    wire:model="categoriesSectionData.description"
+                    placeholder="Chaque pièce est dessinée et fabriquée dans nos ateliers français."
+                />
+            </x-filament::input.wrapper>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <x-filament::button wire:click="saveCategoriesSection" color="primary">
+                Enregistrer la section Catégories
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
+    {{-- Product Grid Section Header --}}
+    <x-filament::section heading="Section Best-sellers (Accueil)" description="Titre et description de la section best-sellers" class="mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-filament::input.wrapper label="Surtitre (Eyebrow)">
+                <x-filament::input
+                    type="text"
+                    wire:model="productGridSectionData.eyebrow"
+                    placeholder="Best-sellers"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre - Partie 1">
+                <x-filament::input
+                    type="text"
+                    wire:model="productGridSectionData.heading"
+                    placeholder="Les pièces que vos clients"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre - Mise en avant (or)">
+                <x-filament::input
+                    type="text"
+                    wire:model="productGridSectionData.headingEm"
+                    placeholder="adorent"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Description">
+                <x-filament::input
+                    type="text"
+                    wire:model="productGridSectionData.description"
+                    placeholder="Les références les plus commandées par notre réseau de revendeurs."
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Texte du lien CTA">
+                <x-filament::input
+                    type="text"
+                    wire:model="productGridSectionData.ctaText"
+                    placeholder="Voir tout le catalogue →"
+                />
+            </x-filament::input.wrapper>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <x-filament::button wire:click="saveProductGridSection" color="primary">
+                Enregistrer la section Best-sellers
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
+    {{-- New By Universe Section Header --}}
+    <x-filament::section heading="Section Nouveautés par univers" description="Titre et description de la section nouveautés" class="mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-filament::input.wrapper label="Surtitre (Eyebrow)">
+                <x-filament::input
+                    type="text"
+                    wire:model="newByUniverseSectionData.eyebrow"
+                    placeholder="Nouveautés par univers"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre - Partie 1">
+                <x-filament::input
+                    type="text"
+                    wire:model="newByUniverseSectionData.heading"
+                    placeholder="Les"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre - Mise en avant (or)">
+                <x-filament::input
+                    type="text"
+                    wire:model="newByUniverseSectionData.headingEm"
+                    placeholder="nouvelles pièces"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Description">
+                <x-filament::input
+                    type="text"
+                    wire:model="newByUniverseSectionData.description"
+                    placeholder="Les 4 dernières références dans chacun de nos univers."
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Texte du lien CTA">
+                <x-filament::input
+                    type="text"
+                    wire:model="newByUniverseSectionData.ctaText"
+                    placeholder="Voir tout →"
+                />
+            </x-filament::input.wrapper>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <x-filament::button wire:click="saveNewByUniverseSection" color="primary">
+                Enregistrer la section Nouveautés
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
+    {{-- Testimonials Section Header --}}
+    <x-filament::section heading="Section Témoignages (Accueil)" description="Titre et compteur de la section témoignages" class="mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-filament::input.wrapper label="Surtitre (Eyebrow)">
+                <x-filament::input
+                    type="text"
+                    wire:model="testimonialsSectionData.eyebrow"
+                    placeholder="Nos revendeurs en parlent"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre - Partie 1">
+                <x-filament::input
+                    type="text"
+                    wire:model="testimonialsSectionData.heading"
+                    placeholder="850 partenaires nous"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre - Mise en avant (or)">
+                <x-filament::input
+                    type="text"
+                    wire:model="testimonialsSectionData.headingEm"
+                    placeholder="font confiance"
+                />
+            </x-filament::input.wrapper>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <x-filament::button wire:click="saveTestimonialsSection" color="primary">
+                Enregistrer la section Témoignages
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
+    {{-- Contact Page --}}
+    <x-filament::section heading="Page Contact" description="Contenu de la page de contact" class="mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-filament::input.wrapper label="Surtitre (Eyebrow)">
+                <x-filament::input
+                    type="text"
+                    wire:model="contactPageData.eyebrow"
+                    placeholder="Nous écrire"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre">
+                <x-filament::input
+                    type="text"
+                    wire:model="contactPageData.title"
+                    placeholder="Contact commercial"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Sous-titre" class="md:col-span-2">
+                <x-filament::input
+                    type="text"
+                    wire:model="contactPageData.subtitle"
+                    placeholder="Une question sur un produit, un devis, ou une demande de partenariat ?"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre Showroom">
+                <x-filament::input
+                    type="text"
+                    wire:model="contactPageData.showroomTitle"
+                    placeholder="Showroom sur rendez-vous"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Texte Showroom">
+                <x-filament::input
+                    type="text"
+                    wire:model="contactPageData.showroomText"
+                    placeholder="Du lundi au vendredi, 10h–18h. Prenez contact pour venir découvrir les collections en avant-première."
+                />
+            </x-filament::input.wrapper>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <x-filament::button wire:click="saveContactPage" color="primary">
+                Enregistrer la page Contact
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
+    {{-- FAQ Page Header --}}
+    <x-filament::section heading="Page FAQ - En-tête" description="Titre et description de la page FAQ" class="mt-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <x-filament::input.wrapper label="Surtitre (Eyebrow)">
+                <x-filament::input
+                    type="text"
+                    wire:model="faqPageHeaderData.eyebrow"
+                    placeholder="Aide"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Titre">
+                <x-filament::input
+                    type="text"
+                    wire:model="faqPageHeaderData.title"
+                    placeholder="Questions fréquentes"
+                />
+            </x-filament::input.wrapper>
+            <x-filament::input.wrapper label="Sous-titre" class="md:col-span-2">
+                <x-filament::input
+                    type="text"
+                    wire:model="faqPageHeaderData.subtitle"
+                    placeholder="Tout ce que les revendeurs nous demandent le plus souvent."
+                />
+            </x-filament::input.wrapper>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <x-filament::button wire:click="saveFAQPageHeader" color="primary">
+                Enregistrer l'en-tête FAQ
+            </x-filament::button>
+        </div>
+    </x-filament::section>
+
+    {{-- Legal Pages --}}
+    <x-filament::section heading="Pages légales" description="Contenu des pages Mentions légales, CGV, Confidentialité et Livraison" class="mt-8">
+        <div class="space-y-8">
+            {{-- Mentions légales --}}
+            <div class="p-4 border rounded-lg space-y-4">
+                <h3 class="text-lg font-medium text-gray-700">Mentions légales</h3>
+                <x-filament::input.wrapper label="Titre">
+                    <x-filament::input
+                        type="text"
+                        wire:model="legalContentData.legal.title"
+                        placeholder="Mentions légales"
+                    />
+                </x-filament::input.wrapper>
+                <div class="space-y-3">
+                    <h4 class="text-sm font-medium text-gray-600">Sections</h4>
+                    @foreach($legalContentData['legal']['sections'] ?? [] as $index => $section)
+                        <div class="p-3 bg-gray-50 rounded space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500">Section {{ $index + 1 }}</span>
+                            </div>
+                            <x-filament::input.wrapper label="Titre de section">
+                                <x-filament::input
+                                    type="text"
+                                    wire:model="legalContentData.legal.sections.{{ $index }}.heading"
+                                    placeholder="Éditeur"
+                                />
+                            </x-filament::input.wrapper>
+                            <x-filament::input.wrapper label="Contenu">
+                                <x-filament::input
+                                    type="text"
+                                    wire:model="legalContentData.legal.sections.{{ $index }}.body"
+                                    placeholder="Contenu de la section"
+                                />
+                            </x-filament::input.wrapper>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- CGV --}}
+            <div class="p-4 border rounded-lg space-y-4">
+                <h3 class="text-lg font-medium text-gray-700">Conditions générales de vente (CGV)</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <x-filament::input.wrapper label="Surtitre (Eyebrow)">
+                        <x-filament::input
+                            type="text"
+                            wire:model="legalContentData.cgv.eyebrow"
+                            placeholder="Conditions"
+                        />
+                    </x-filament::input.wrapper>
+                    <x-filament::input.wrapper label="Titre">
+                        <x-filament::input
+                            type="text"
+                            wire:model="legalContentData.cgv.title"
+                            placeholder="Conditions générales de vente"
+                        />
+                    </x-filament::input.wrapper>
+                    <x-filament::input.wrapper label="Sous-titre" class="md:col-span-2">
+                        <x-filament::input
+                            type="text"
+                            wire:model="legalContentData.cgv.subtitle"
+                            placeholder="Applicables aux clients professionnels de MAISON LUNE."
+                        />
+                    </x-filament::input.wrapper>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="text-sm font-medium text-gray-600">Sections</h4>
+                    @foreach($legalContentData['cgv']['sections'] ?? [] as $index => $section)
+                        <div class="p-3 bg-gray-50 rounded space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500">Section {{ $index + 1 }}</span>
+                            </div>
+                            <x-filament::input.wrapper label="Titre de section">
+                                <x-filament::input
+                                    type="text"
+                                    wire:model="legalContentData.cgv.sections.{{ $index }}.heading"
+                                    placeholder="1. Objet"
+                                />
+                            </x-filament::input.wrapper>
+                            <x-filament::input.wrapper label="Contenu">
+                                <x-filament::input
+                                    type="text"
+                                    wire:model="legalContentData.cgv.sections.{{ $index }}.body"
+                                    placeholder="Contenu de la section"
+                                />
+                            </x-filament::input.wrapper>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Confidentialité --}}
+            <div class="p-4 border rounded-lg space-y-4">
+                <h3 class="text-lg font-medium text-gray-700">Politique de confidentialité</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <x-filament::input.wrapper label="Titre">
+                        <x-filament::input
+                            type="text"
+                            wire:model="legalContentData.privacy.title"
+                            placeholder="Politique de confidentialité"
+                        />
+                    </x-filament::input.wrapper>
+                    <x-filament::input.wrapper label="Sous-titre">
+                        <x-filament::input
+                            type="text"
+                            wire:model="legalContentData.privacy.subtitle"
+                            placeholder="Nous traitons vos données personnelles conformément au RGPD."
+                        />
+                    </x-filament::input.wrapper>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="text-sm font-medium text-gray-600">Sections</h4>
+                    @foreach($legalContentData['privacy']['sections'] ?? [] as $index => $section)
+                        <div class="p-3 bg-gray-50 rounded space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500">Section {{ $index + 1 }}</span>
+                            </div>
+                            <x-filament::input.wrapper label="Titre de section">
+                                <x-filament::input
+                                    type="text"
+                                    wire:model="legalContentData.privacy.sections.{{ $index }}.heading"
+                                    placeholder="Données collectées"
+                                />
+                            </x-filament::input.wrapper>
+                            <x-filament::input.wrapper label="Contenu">
+                                <x-filament::input
+                                    type="text"
+                                    wire:model="legalContentData.privacy.sections.{{ $index }}.body"
+                                    placeholder="Contenu de la section"
+                                />
+                            </x-filament::input.wrapper>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Livraison --}}
+            <div class="p-4 border rounded-lg space-y-4">
+                <h3 class="text-lg font-medium text-gray-700">Livraison & retours</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <x-filament::input.wrapper label="Surtitre (Eyebrow)">
+                        <x-filament::input
+                            type="text"
+                            wire:model="legalContentData.shipping.eyebrow"
+                            placeholder="Infos pro"
+                        />
+                    </x-filament::input.wrapper>
+                    <x-filament::input.wrapper label="Titre">
+                        <x-filament::input
+                            type="text"
+                            wire:model="legalContentData.shipping.title"
+                            placeholder="Livraison & retours"
+                        />
+                    </x-filament::input.wrapper>
+                    <x-filament::input.wrapper label="Sous-titre" class="md:col-span-2">
+                        <x-filament::input
+                            type="text"
+                            wire:model="legalContentData.shipping.subtitle"
+                            placeholder="Nos engagements logistiques pour nos partenaires revendeurs."
+                        />
+                    </x-filament::input.wrapper>
+                </div>
+                <div class="space-y-3">
+                    <h4 class="text-sm font-medium text-gray-600">Sections</h4>
+                    @foreach($legalContentData['shipping']['sections'] ?? [] as $index => $section)
+                        <div class="p-3 bg-gray-50 rounded space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-gray-500">Section {{ $index + 1 }}</span>
+                            </div>
+                            <x-filament::input.wrapper label="Titre de section">
+                                <x-filament::input
+                                    type="text"
+                                    wire:model="legalContentData.shipping.sections.{{ $index }}.heading"
+                                    placeholder="Délais & zones"
+                                />
+                            </x-filament::input.wrapper>
+                            <x-filament::input.wrapper label="Contenu">
+                                <x-filament::input
+                                    type="text"
+                                    wire:model="legalContentData.shipping.sections.{{ $index }}.body"
+                                    placeholder="Contenu de la section"
+                                />
+                            </x-filament::input.wrapper>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        <div class="mt-6 flex justify-end">
+            <x-filament::button wire:click="saveLegalContent" color="primary">
+                Enregistrer les pages légales
             </x-filament::button>
         </div>
     </x-filament::section>

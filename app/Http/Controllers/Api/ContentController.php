@@ -57,4 +57,52 @@ class ContentController extends Controller
         }
         return response()->json(['settings' => $flat]);
     }
+
+    public function promises(): JsonResponse
+    {
+        $content = ContentBlock::getByKey('promises');
+        return response()->json(['promises' => $content?->data ?? []]);
+    }
+
+    public function categoriesSection(): JsonResponse
+    {
+        $content = ContentBlock::getByKey('categories_section');
+        return response()->json(['content' => $content?->data ?? []]);
+    }
+
+    public function productGridSection(): JsonResponse
+    {
+        $content = ContentBlock::getByKey('product_grid_section');
+        return response()->json(['content' => $content?->data ?? []]);
+    }
+
+    public function newByUniverseSection(): JsonResponse
+    {
+        $content = ContentBlock::getByKey('new_by_universe_section');
+        return response()->json(['content' => $content?->data ?? []]);
+    }
+
+    public function testimonialsSection(): JsonResponse
+    {
+        $content = ContentBlock::getByKey('testimonials_section');
+        return response()->json(['content' => $content?->data ?? []]);
+    }
+
+    public function legalPage(string $page): JsonResponse
+    {
+        $content = ContentBlock::getByKey("legal_{$page}");
+        return response()->json(['content' => $content?->data ?? []]);
+    }
+
+    public function contactPage(): JsonResponse
+    {
+        $content = ContentBlock::getByKey('contact_page');
+        return response()->json(['content' => $content?->data ?? []]);
+    }
+
+    public function faqPageHeader(): JsonResponse
+    {
+        $content = ContentBlock::getByKey('faq_page_header');
+        return response()->json(['content' => $content?->data ?? []]);
+    }
 }
