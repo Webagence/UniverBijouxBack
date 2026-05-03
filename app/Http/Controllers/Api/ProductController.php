@@ -125,6 +125,16 @@ class ProductController extends Controller
             $images = [asset("images/products/{$universeSlug}.jpg")];
         }
 
+        $variations = $product->variations ?? [];
+        if (is_array($variations)) {
+            $variations = array_map(function ($v) {
+                if (isset($v['options']) && is_string($v['options'])) {
+                    $v['options'] = array_map('trim', explode(',', $v['options']));
+                }
+                return $v;
+            }, $variations);
+        }
+
         return [
             'id' => $product->id,
             'slug' => $product->slug,
@@ -133,6 +143,7 @@ class ProductController extends Controller
             'description' => $product->description,
             'universe_id' => $product->universe_id,
             'price_ht' => $product->price_ht,
+            'sale_price_ht' => $product->sale_price_ht,
             'retail_ttc' => $product->retail_ttc,
             'vat_rate' => $product->vat_rate,
             'moq' => $product->moq,
@@ -141,7 +152,9 @@ class ProductController extends Controller
             'images' => $images,
             'material' => $product->material,
             'finish' => $product->finish,
+            'quality_grade' => $product->quality_grade,
             'tag' => $product->tag,
+            'variations' => $variations,
             'is_new' => $product->is_new,
             'active' => $product->active,
             'created_at' => $product->created_at,

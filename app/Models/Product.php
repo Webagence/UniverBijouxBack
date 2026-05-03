@@ -19,6 +19,7 @@ class Product extends Model
         'description',
         'universe_id',
         'price_ht',
+        'sale_price_ht',
         'retail_ttc',
         'vat_rate',
         'moq',
@@ -27,7 +28,9 @@ class Product extends Model
         'images',
         'material',
         'finish',
+        'quality_grade',
         'tag',
+        'variations',
         'is_new',
         'active',
     ];
@@ -36,9 +39,11 @@ class Product extends Model
     {
         return [
             'price_ht' => 'decimal:2',
+            'sale_price_ht' => 'decimal:2',
             'retail_ttc' => 'decimal:2',
             'vat_rate' => 'decimal:2',
             'images' => 'array',
+            'variations' => 'array',
             'is_new' => 'boolean',
             'active' => 'boolean',
         ];

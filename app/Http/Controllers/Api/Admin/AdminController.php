@@ -78,6 +78,7 @@ class AdminController extends Controller
             'slug' => 'required|string|unique:products,slug',
             'price_ht' => 'required|numeric|min:0',
             'universe_id' => 'nullable|uuid|exists:universes,id',
+            'variations' => 'nullable|array',
         ]);
 
         if ($validator->fails()) {

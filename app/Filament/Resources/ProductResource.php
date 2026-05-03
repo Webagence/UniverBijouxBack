@@ -60,6 +60,12 @@ class ProductResource extends Resource
                             ->numeric()
                             ->prefix('€')
                             ->default(0),
+                        Forms\Components\TextInput::make('sale_price_ht')
+                            ->label('Prix promo HT (€)')
+                            ->numeric()
+                            ->prefix('€')
+                            ->nullable()
+                            ->helperText('Laisser vide si pas de promotion'),
                         Forms\Components\TextInput::make('retail_ttc')
                             ->label('Prix public TTC conseillé (€)')
                             ->numeric()
@@ -93,6 +99,10 @@ class ProductResource extends Resource
                             ->label('Matière'),
                         Forms\Components\TextInput::make('finish')
                             ->label('Finition'),
+                        Forms\Components\TextInput::make('quality_grade')
+                            ->label('Qualité (grade)')
+                            ->placeholder('A, A+, AA, AA+, AAA')
+                            ->maxLength(10),
                         Forms\Components\Select::make('tag')
                             ->options([
                                 'Nouveauté' => 'Nouveauté',
@@ -123,6 +133,29 @@ class ProductResource extends Resource
                             ->panelLayout('grid')
                             ->columnSpanFull()
                             ->default([]),
+                    ]),
+
+                Forms\Components\Section::make('Variations')
+                    ->description('Tailles, formes, couleurs... Le client pourra choisir parmi les options.')
+                    ->schema([
+                        Forms\Components\Repeater::make('variations')
+                            ->label('Variations du produit')
+                            ->schema([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nom de la variation')
+                                    ->placeholder('Ex : Taille, Forme, Couleur')
+                                    ->required(),
+                                Forms\Components\TagsInput::make('options')
+                                    ->label('Options (une par tag)')
+                                    ->placeholder('Ex : 4mm, 6mm, 8mm')
+                                    ->separator(',')
+                                    ->required(),
+                            ])
+                            ->columns(2)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                            ->defaultItems(0)
+                            ->columnSpanFull(),
                     ]),
             ]);
     }
