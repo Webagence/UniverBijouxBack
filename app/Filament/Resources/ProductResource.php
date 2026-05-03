@@ -120,6 +120,7 @@ class ProductResource extends Resource
                             ->reorderable()
                             ->maxFiles(10)
                             ->maxSize(5120)
+                            ->panelLayout('grid')
                             ->columnSpanFull()
                             ->default([]),
                     ]),
