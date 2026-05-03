@@ -40,7 +40,11 @@ class Universe extends Model
             if (filter_var($value, FILTER_VALIDATE_URL)) {
                 return $value;
             }
-            return asset($value);
+            $value = ltrim($value, '/');
+            if (str_starts_with($value, 'storage/')) {
+                return asset($value);
+            }
+            return asset("storage/{$value}");
         }
         return asset("images/products/{$this->slug}.jpg");
     }

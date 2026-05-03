@@ -57,9 +57,9 @@ class UniverseResource extends Resource
                         Forms\Components\FileUpload::make('image_url')
                             ->label('Image de l\'univers')
                             ->image()
+                            ->disk('public')
                             ->directory('universes')
                             ->maxSize(5120)
-                            ->imageEditor()
                             ->columnSpanFull(),
                     ]),
             ]);

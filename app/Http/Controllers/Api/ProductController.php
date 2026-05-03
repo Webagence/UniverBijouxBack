@@ -62,9 +62,7 @@ class ProductController extends Controller
                     'slug' => $u->slug,
                     'name' => $u->name,
                     'description' => $u->description,
-                    'image_url' => $u->image_url
-                        ? $this->storageUrl($u->image_url)
-                        : asset("images/products/{$u->slug}.jpg"),
+                    'image_url' => $u->image_url,
                     'display_order' => $u->display_order,
                     'products_count' => $u->products_count,
                 ];
@@ -164,9 +162,7 @@ class ProductController extends Controller
                 'slug' => $product->universe->slug,
                 'name' => $product->universe->name,
                 'description' => $product->universe->description,
-                'image_url' => $product->universe->image_url
-                    ? $this->storageUrl($product->universe->image_url)
-                    : asset("images/products/{$product->universe->slug}.jpg"),
+                'image_url' => $product->universe->image_url,
                 'display_order' => $product->universe->display_order,
             ] : null,
         ];
