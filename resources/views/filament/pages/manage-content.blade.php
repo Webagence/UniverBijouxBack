@@ -139,6 +139,43 @@
             </x-filament::input.wrapper>
         </div>
 
+        <div class="mt-6">
+            <h3 class="text-lg font-medium mb-4 dark:text-gray-200">Informations de contact</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <x-filament::input.wrapper label="Adresse">
+                    <x-filament::input
+                        type="text"
+                        wire:model="heroData.address"
+                        placeholder="12 rue Saint-Honoré, 75001 Paris"
+                    />
+                </x-filament::input.wrapper>
+
+                <x-filament::input.wrapper label="Téléphone">
+                    <x-filament::input
+                        type="text"
+                        wire:model="heroData.phone"
+                        placeholder="+33 1 42 00 00 00"
+                    />
+                </x-filament::input.wrapper>
+
+                <x-filament::input.wrapper label="Expéditions">
+                    <x-filament::input
+                        type="text"
+                        wire:model="heroData.shipping"
+                        placeholder="Expéditions sous 48h"
+                    />
+                </x-filament::input.wrapper>
+
+                <x-filament::input.wrapper label="Horaires d'ouverture">
+                    <x-filament::input
+                        type="text"
+                        wire:model="heroData.hours"
+                        placeholder="Lun–Ven : 9h–18h"
+                    />
+                </x-filament::input.wrapper>
+            </div>
+        </div>
+
         <div class="mt-6 flex justify-end">
             <x-filament::button wire:click="saveHero" color="primary">
                 Enregistrer la section Hero
