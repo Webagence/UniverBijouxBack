@@ -5,9 +5,13 @@ namespace App\Filament\Pages;
 use App\Models\SiteSetting;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Storage;
+use Livewire\WithFileUploads;
 
 class ManageSettings extends Page
 {
+    use WithFileUploads;
+
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static ?string $navigationLabel = 'Paramètres';
@@ -22,6 +26,10 @@ class ManageSettings extends Page
 
     public ?string $announcementsText = '';
 
+    public ?string $logoUrl = null;
+
+    public $logoFile = null;
+
     public function mount(): void
     {
         $this->loadSettings();
@@ -31,6 +39,7 @@ class ManageSettings extends Page
     {
         $settings = SiteSetting::where('key', 'general')->first();
         $this->data = $settings?->value ?? [];
+        $this->logoUrl = $this->data['logo'] ?? null;
 
         if (isset($this->data['announcements']) && is_array($this->data['announcements'])) {
             $this->announcementsText = implode("\n", $this->data['announcements']);
@@ -44,7 +53,15 @@ class ManageSettings extends Page
             'data.email' => 'nullable|email',
             'data.phone' => 'nullable|string|max:20',
             'data.freeShippingFrom' => 'nullable|numeric|min:0',
+            'logoFile' => 'nullable|image|max:5120',
         ]);
+
+        if ($this->logoFile) {
+            $path = $this->logoFile->store('settings/logo', 'public');
+            $this->logoUrl = Storage::url($path);
+            $this->data['logo'] = $this->logoUrl;
+            $this->logoFile = null;
+        }
 
         if ($this->announcementsText) {
             $this->data['announcements'] = array_filter(
@@ -63,5 +80,15 @@ class ManageSettings extends Page
             ->title('Paramètres enregistrés')
             ->success()
             ->send();
+    }
+
+    public function removeLogo(): void
+    {
+        if ($this->logoUrl) {
+            $path = str_replace('/storage/', '', parse_url($this->logoUrl, PHP_URL_PATH));
+            Storage::disk('public')->delete($path);
+        }
+        $this->logoUrl = null;
+        unset($this->data['logo']);
     }
 }

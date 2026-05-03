@@ -1,21 +1,56 @@
 <x-filament-panels::page>
     <x-filament::section heading="Paramètres généraux du site">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <x-filament::input.wrapper label="Nom du site">
-                <x-filament::input
-                    type="text"
-                    wire:model="data.siteName"
-                    placeholder="MAISON LUNE"
-                />
-            </x-filament::input.wrapper>
+        <div class="mb-6">
+            <h3 class="text-lg font-medium mb-4">Identité visuelle</h3>
+            <p class="text-sm text-gray-500 mb-4">
+                Choisissez d'afficher un logo image ou le nom du site en texte. Si les deux sont définis, le logo est prioritaire.
+            </p>
 
-            <x-filament::input.wrapper label="Slogan / Tagline">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <x-filament::input.wrapper label="Nom du site (texte)">
+                        <x-filament::input
+                            type="text"
+                            wire:model="data.siteName"
+                            placeholder="MAISON LUNE"
+                        />
+                    </x-filament::input.wrapper>
+                    <p class="text-xs text-gray-400 mt-1">Affiché si aucun logo n'est uploadé.</p>
+                </div>
+
+                <div>
+                    <x-filament::input.wrapper label="Slogan / Tagline">
+                        <x-filament::input
+                            type="text"
+                            wire:model="data.tagline"
+                            placeholder="Grossiste bijoux français"
+                        />
+                    </x-filament::input.wrapper>
+                </div>
+            </div>
+
+            <div class="mt-6">
+                <x-filament::input.wrapper label="Logo du site (image)">
+                    @if($logoUrl)
+                        <div class="flex items-center gap-4 mt-2">
+                            <img src="{{ $logoUrl }}" alt="Logo" class="h-16 w-auto object-contain border rounded bg-gray-50 p-2" />
+                            <x-filament::button wire:click="removeLogo" color="danger" size="sm">
+                                Supprimer le logo
+                            </x-filament::button>
+                        </div>
+                    @endif
+                </x-filament::input.wrapper>
                 <x-filament::input
-                    type="text"
-                    wire:model="data.tagline"
-                    placeholder="Grossiste bijoux français"
+                    type="file"
+                    wire:model="logoFile"
+                    accept="image/*"
+                    class="mt-2"
                 />
-            </x-filament::input.wrapper>
+                @error('logoFile')
+                    <p class="text-sm text-danger-600 mt-1">{{ $message }}</p>
+                @enderror
+                <p class="text-xs text-gray-400 mt-1">PNG, JPG ou SVG. Max 5 MB. Prioritaire sur le texte.</p>
+            </div>
         </div>
 
         <div class="mt-6">
