@@ -161,7 +161,7 @@ class StripePaymentController extends Controller
 
             $order = Order::where('stripe_payment_intent_id', $stripePaymentIntentId)->first();
 
-            if ($order) {
+            if ($order && $order->status === Order::STATUS_PENDING) {
                 $order->update([
                     'status' => Order::STATUS_CONFIRMED,
                     'stripe_payment_status' => 'succeeded',
@@ -181,17 +181,11 @@ class StripePaymentController extends Controller
 
             $order = Order::where('stripe_payment_intent_id', $stripePaymentIntentId)->first();
 
-            if ($order) {
+            if ($order && $order->status === Order::STATUS_PENDING) {
                 $order->update([
                     'status' => Order::STATUS_CANCELLED,
                     'stripe_payment_status' => 'failed',
                 ]);
-
-                foreach ($order->items as $item) {
-                    if ($item->product) {
-                        $item->product->increment('stock', $item->quantity);
-                    }
-                }
             }
         }
 
