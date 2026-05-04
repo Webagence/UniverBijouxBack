@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\StripePaymentController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
@@ -41,6 +42,9 @@ Route::prefix('products')->group(function () {
     Route::get('/{slug}', [ProductController::class, 'show']);
 });
 
+// Stripe webhook (must be outside auth middleware, verified by signature)
+Route::post('/stripe/webhook', [StripePaymentController::class, 'webhook']);
+
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
     // Auth
@@ -56,6 +60,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [OrderController::class, 'store']);
         Route::get('/{id}', [OrderController::class, 'show']);
         Route::post('/{id}/cancel', [OrderController::class, 'cancel']);
+    });
+
+    // Stripe payments (require approved account)
+    Route::middleware('approved')->prefix('stripe')->group(function () {
+        Route::post('/create-payment-intent', [StripePaymentController::class, 'createPaymentIntent']);
+        Route::post('/confirm', [StripePaymentController::class, 'confirmPayment']);
     });
 
     // Tickets

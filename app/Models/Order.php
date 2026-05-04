@@ -30,6 +30,8 @@ class Order extends Model
         'tracking_number',
         'carrier',
         'notes',
+        'stripe_payment_intent_id',
+        'stripe_payment_status',
     ];
 
     protected function casts(): array
