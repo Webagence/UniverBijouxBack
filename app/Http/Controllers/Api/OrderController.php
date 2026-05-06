@@ -26,10 +26,10 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
         $order = $request->user()->orders()
-            ->with(['items.product', 'user', 'invoices'])
+            ->with(['items', 'user'])
             ->findOrFail($id);
 
         return response()->json(['order' => $order]);
