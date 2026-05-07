@@ -33,6 +33,8 @@ class Product extends Model
         'variations',
         'is_new',
         'active',
+        'shippingbo_product_id',
+        'shippingbo_synced_at',
     ];
 
     protected function casts(): array
@@ -46,6 +48,7 @@ class Product extends Model
             'variations' => 'array',
             'is_new' => 'boolean',
             'active' => 'boolean',
+            'shippingbo_synced_at' => 'datetime',
         ];
     }
 

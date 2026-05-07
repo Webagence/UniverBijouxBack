@@ -6,9 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ShippingboSetting;
+use App\Services\ShippingboService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -118,6 +121,15 @@ class OrderController extends Controller
                 $order->items()->create($itemData);
             }
 
+            if (ShippingboSetting::isConnected()) {
+                try {
+                    $shippingboService = app(ShippingboService::class);
+                    $shippingboService->syncOrderToShippingbo($order->load('items', 'user'));
+                } catch (\Exception $e) {
+                    Log::error("Failed to sync order {$order->id} to Shippingbo: {$e->getMessage()}");
+                }
+            }
+
             return response()->json([
                 'message' => 'Order created successfully',
                 'order' => $order->load('items'),
@@ -142,6 +154,15 @@ class OrderController extends Controller
         }
 
         $order->update(['status' => Order::STATUS_CANCELLED]);
+
+        if ($order->shippingbo_order_id && ShippingboSetting::isConnected()) {
+            try {
+                $shippingboService = app(ShippingboService::class);
+                $shippingboService->cancelOrder($order->shippingbo_order_id);
+            } catch (\Exception $e) {
+                Log::error("Failed to cancel order {$order->shippingbo_order_id} in Shippingbo: {$e->getMessage()}");
+            }
+        }
 
         return response()->json([
             'message' => 'Order cancelled',

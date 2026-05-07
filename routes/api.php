@@ -5,6 +5,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ShippingboController;
+use App\Http\Controllers\Api\ShippingboWebhookController;
 use App\Http\Controllers\Api\StripePaymentController;
 use App\Http\Controllers\Api\TicketController;
 use App\Http\Controllers\Api\UploadController;
@@ -44,6 +46,12 @@ Route::prefix('products')->group(function () {
 
 // Stripe webhook (must be outside auth middleware, verified by signature)
 Route::post('/stripe/webhook', [StripePaymentController::class, 'webhook']);
+
+// Shippingbo webhook (public, receives webhooks from Shippingbo)
+Route::post('/shippingbo/webhook', [ShippingboWebhookController::class, 'handle']);
+
+// Shippingbo OAuth callback (public, receives OAuth redirect)
+Route::get('/shippingbo/callback', [ShippingboController::class, 'handleCallback']);
 
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
@@ -116,5 +124,16 @@ Route::middleware('auth:sanctum')->group(function () {
 
         // Tickets
         Route::get('/tickets', [AdminController::class, 'tickets']);
+
+        // Shippingbo
+        Route::prefix('shippingbo')->group(function () {
+            Route::get('/settings', [ShippingboController::class, 'getSettings']);
+            Route::put('/settings', [ShippingboController::class, 'updateSettings']);
+            Route::get('/authorize', [ShippingboController::class, 'getAuthorizationUrl']);
+            Route::get('/sync-status', [ShippingboController::class, 'getSyncStatus']);
+            Route::post('/sync/products', [ShippingboController::class, 'syncAllProducts']);
+            Route::post('/sync/products/{productId}', [ShippingboController::class, 'syncProduct']);
+            Route::post('/sync/orders/{orderId}', [ShippingboController::class, 'syncOrder']);
+        });
     });
 });

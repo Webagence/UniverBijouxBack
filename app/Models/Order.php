@@ -32,6 +32,8 @@ class Order extends Model
         'notes',
         'stripe_payment_intent_id',
         'stripe_payment_status',
+        'shippingbo_order_id',
+        'shippingbo_synced_at',
     ];
 
     protected function casts(): array
@@ -42,6 +44,7 @@ class Order extends Model
             'shipping_ht' => 'decimal:2',
             'total_ttc' => 'decimal:2',
             'shipping_address' => 'array',
+            'shippingbo_synced_at' => 'datetime',
         ];
     }
 
