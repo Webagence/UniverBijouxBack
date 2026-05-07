@@ -97,7 +97,7 @@
             </x-filament::button>
             @endif
 
-            @if(!ShippingboSetting::isConnected())
+            @if(!\App\Models\ShippingboSetting::isConnected())
             <x-filament::button wire:click="connect" color="primary">
                 Connecter à Shippingbo
             </x-filament::button>
