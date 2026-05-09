@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Jobs\SyncOrderToShippingbo;
+use App\Jobs\SyncProductToShippingbo;
 use App\Http\Controllers\Controller;
 use App\Models\ContentBlock;
 use App\Models\FaqItem;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\ShippingboSetting;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
 use App\Models\Ticket;
@@ -60,7 +63,12 @@ class AdminController extends Controller
     public function updateOrderStatus(string $id, Request $request): JsonResponse
     {
         $order = Order::findOrFail($id);
+        $oldStatus = $order->status;
         $order->update(['status' => $request->status]);
+
+        if (ShippingboSetting::isConnected() && $order->shippingbo_order_id) {
+            SyncOrderToShippingbo::dispatch($order->id, 'update_order_status')->onQueue('shippingbo');
+        }
 
         return response()->json(['message' => 'Order status updated', 'order' => $order]);
     }
@@ -86,6 +94,11 @@ class AdminController extends Controller
         }
 
         $product = Product::create($request->all());
+
+        if (ShippingboSetting::isConnected()) {
+            SyncProductToShippingbo::dispatch($product->id, 'sync_product')->onQueue('shippingbo');
+        }
+
         return response()->json(['product' => $product], 201);
     }
 
@@ -93,6 +106,11 @@ class AdminController extends Controller
     {
         $product = Product::findOrFail($id);
         $product->update($request->all());
+
+        if (ShippingboSetting::isConnected() && $product->shippingbo_product_id) {
+            SyncProductToShippingbo::dispatch($product->id, 'update_product')->onQueue('shippingbo');
+        }
+
         return response()->json(['product' => $product]);
     }
 

@@ -218,9 +218,13 @@ class ShippingboService
 
     public function syncOrderToShippingbo(\App\Models\Order $order): array
     {
+        if ($order->shippingbo_order_id) {
+            return $this->updateOrderStatusInShippingbo($order);
+        }
+
         $addressData = [
             'firstname' => $order->shipping_address['name'] ?? '',
-            'lastname' => '',
+            'lastname' => $order->shipping_address['last_name'] ?? '',
             'street1' => $order->shipping_address['address'] ?? '',
             'street2' => $order->shipping_address['address_line2'] ?? null,
             'zip' => $order->shipping_address['postal_code'] ?? '',
@@ -276,6 +280,32 @@ class ShippingboService
         ]);
 
         return $result;
+    }
+
+    public function updateOrderStatusInShippingbo(\App\Models\Order $order): array
+    {
+        if (!$order->shippingbo_order_id) {
+            throw new \Exception("Order {$order->id} has no Shippingbo ID");
+        }
+
+        $statusMap = [
+            \App\Models\Order::STATUS_PENDING => 'new',
+            \App\Models\Order::STATUS_CONFIRMED => 'in_progress',
+            \App\Models\Order::STATUS_PREPARING => 'in_progress',
+            \App\Models\Order::STATUS_SHIPPED => 'shipped',
+            \App\Models\Order::STATUS_DELIVERED => 'delivered',
+            \App\Models\Order::STATUS_CANCELLED => 'cancelled',
+        ];
+
+        $shippingboStatus = $statusMap[$order->status] ?? null;
+
+        if (!$shippingboStatus) {
+            throw new \Exception("Unknown order status: {$order->status}");
+        }
+
+        return $this->request('patch', "orders/{$order->shippingbo_order_id}", [
+            'state' => $shippingboStatus,
+        ]);
     }
 
     public function syncProductToShippingbo(\App\Models\Product $product): array
@@ -390,5 +420,35 @@ class ShippingboService
         $product->update(['stock' => $newStock]);
 
         Log::info("Shippingbo webhook: Product {$product->reference} stock updated from {$oldStock} to {$newStock}");
+    }
+
+    public function handleWebhookShipment(array $payload): void
+    {
+        $shipmentData = $payload['object'] ?? [];
+        $orderId = $shipmentData['order_id'] ?? null;
+        $shippingRef = $shipmentData['shipping_ref'] ?? null;
+        $trackingUrl = $shipmentData['tracking_url'] ?? null;
+        $carrierName = $shipmentData['carrier_name'] ?? null;
+
+        if (!$orderId) {
+            Log::warning('Shippingbo webhook: missing order_id in shipment', $payload);
+            return;
+        }
+
+        $order = \App\Models\Order::where('shippingbo_order_id', $orderId)->first();
+
+        if (!$order) {
+            Log::warning("Shippingbo webhook: order not found for shippingbo_id {$orderId}");
+            return;
+        }
+
+        $updateData = [];
+        if ($shippingRef) $updateData['tracking_number'] = $shippingRef;
+        if ($carrierName) $updateData['carrier'] = $carrierName;
+
+        if (!empty($updateData)) {
+            $order->update($updateData);
+            Log::info("Shippingbo webhook: Order {$order->reference} shipment updated", $updateData);
+        }
     }
 }
