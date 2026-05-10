@@ -12,9 +12,14 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => explode(',', env('CORS_ALLOWED_ORIGINS', '')),
+    'allowed_origins' => array_map('trim', explode(',', env('CORS_ALLOWED_ORIGINS', ''))),
 
-    'allowed_origins_patterns' => [],
+    'allowed_origins_patterns' => [
+        '/^https:\/\/demo\.webagence-rte\.site\/?$/',
+        '/^https:\/\/back\.sovama\.mg\/?$/',
+        '/^https?:\/\/localhost(:\d+)?$/',
+        '/^https?:\/\/127\.0\.0\.1(:\d+)?$/',
+    ],
 
     'allowed_headers' => ['*'],
 
