@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Jobs\SyncOrderToShippingbo;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ShippingboSetting;
 use App\Models\SiteSetting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -121,6 +123,10 @@ class StripePaymentController extends Controller
                 $order->items()->create($itemData);
             }
 
+            if (ShippingboSetting::isConnected()) {
+                SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
+            }
+
             return response()->json([
                 'clientSecret' => $paymentIntent->client_secret,
                 'orderId' => $order->id,
@@ -171,6 +177,10 @@ class StripePaymentController extends Controller
                     if ($item->product) {
                         $item->product->decrement('stock', $item->quantity);
                     }
+                }
+
+                if ($order->shippingbo_order_id && ShippingboSetting::isConnected()) {
+                    SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
                 }
             }
         }
