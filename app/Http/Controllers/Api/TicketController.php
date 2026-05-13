@@ -25,7 +25,7 @@ class TicketController extends Controller
         return response()->json($tickets);
     }
 
-    public function show(string $id): JsonResponse
+    public function show(Request $request, string $id): JsonResponse
     {
         $ticket = $request->user()->tickets()
             ->with(['order', 'messages.author'])
@@ -79,7 +79,7 @@ class TicketController extends Controller
 
         $ticket = $request->user()->tickets()->findOrFail($id);
 
-        if (in_array($ticket->status, [Ticket::STATUS_RESOLVED, Ticket::STATUS_CLOSED])) {
+        if ($ticket->status === Ticket::STATUS_CLOSED) {
             return response()->json([
                 'message' => 'Cannot reply to a closed ticket.',
             ], 400);
@@ -91,7 +91,9 @@ class TicketController extends Controller
             'body' => $request->message,
         ]);
 
-        $ticket->update(['status' => Ticket::STATUS_PENDING]);
+        if ($ticket->status !== Ticket::STATUS_OPEN) {
+            $ticket->update(['status' => Ticket::STATUS_PENDING]);
+        }
 
         return response()->json([
             'message' => 'Reply sent',
