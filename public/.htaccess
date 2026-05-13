@@ -1,13 +1,22 @@
+<Limit OPTIONS GET POST PUT PATCH DELETE>
+    Require all granted
+</Limit>
+
+<IfModule mod_headers.c>
+    SetEnvIf Origin "https://demo.webagence-rte.site" CORS_ALLOW=1
+    Header always set Access-Control-Allow-Origin "https://demo.webagence-rte.site" env=CORS_ALLOW
+    Header always set Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE, OPTIONS" env=CORS_ALLOW
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With, Accept, Origin" env=CORS_ALLOW
+    Header always set Access-Control-Allow-Credentials "true" env=CORS_ALLOW
+    Header always set Access-Control-Max-Age "86400" env=CORS_ALLOW
+</IfModule>
+
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
-
-    # Ensure OPTIONS requests are passed to index.php
-    RewriteCond %{REQUEST_METHOD} OPTIONS
-    RewriteRule ^(.*)$ index.php [L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
