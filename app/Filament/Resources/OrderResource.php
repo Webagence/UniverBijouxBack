@@ -3,7 +3,9 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\OrderResource\Pages;
-use App\Filament\Resources\OrderResource\RelationManagers;
+use App\Filament\Resources\OrderResource\RelationManagers\InvoicesRelationManager;
+use App\Filament\Resources\OrderResource\RelationManagers\OrderItemsRelationManager;
+use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\User;
 use Filament\Forms;
@@ -176,6 +178,44 @@ class OrderResource extends Resource
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('generateInvoice')
+                    ->label('Facturer')
+                    ->icon('heroicon-o-document-text')
+                    ->color('success')
+                    ->requiresConfirmation()
+                    ->modalHeading('Générer la facture')
+                    ->modalDescription('Une facture sera créée pour cette commande.')
+                    ->modalSubmitActionLabel('Générer')
+                    ->action(function (Order $record) {
+                        $existing = $record->invoices()->first();
+                        if ($existing) {
+                            Notification::make()
+                                ->title('Facture existante')
+                                ->body("La commande {$record->reference} a déjà une facture ({$existing->invoice_number}).")
+                                ->warning()
+                                ->send();
+                            return;
+                        }
+
+                        $invoiceNumber = 'FAC-' . now()->format('Ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+
+                        Invoice::create([
+                            'invoice_number' => $invoiceNumber,
+                            'order_id' => $record->id,
+                            'user_id' => $record->user_id,
+                            'total_ht' => $record->subtotal_ht,
+                            'vat_amount' => $record->vat_amount,
+                            'total_ttc' => $record->total_ttc,
+                            'issued_at' => now(),
+                        ]);
+
+                        Notification::make()
+                            ->title('Facture générée')
+                            ->body("Facture {$invoiceNumber} créée pour la commande {$record->reference}.")
+                            ->success()
+                            ->send();
+                    })
+                    ->visible(fn (Order $record): bool => $record->status !== Order::STATUS_CANCELLED && $record->invoices()->count() === 0),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -188,7 +228,8 @@ class OrderResource extends Resource
     public static function getRelations(): array
     {
         return [
-            RelationManagers\OrderItemsRelationManager::class,
+            OrderItemsRelationManager::class,
+            InvoicesRelationManager::class,
         ];
     }
 

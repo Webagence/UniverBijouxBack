@@ -31,6 +31,20 @@ class Invoice extends Model
         ];
     }
 
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($invoice) {
+            if (empty($invoice->invoice_number)) {
+                $invoice->invoice_number = 'FAC-' . now()->format('Ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
+            }
+            if (empty($invoice->issued_at)) {
+                $invoice->issued_at = now();
+            }
+        });
+    }
+
     public function order()
     {
         return $this->belongsTo(Order::class);

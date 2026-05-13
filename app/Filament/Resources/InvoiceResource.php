@@ -3,15 +3,14 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\InvoiceResource\Pages;
-use App\Filament\Resources\InvoiceResource\RelationManagers;
 use App\Models\Invoice;
+use App\Models\Order;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class InvoiceResource extends Resource
 {
@@ -29,24 +28,62 @@ class InvoiceResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('invoice_number')
-                    ->required(),
-                Forms\Components\TextInput::make('order_id')
-                    ->required(),
-                Forms\Components\TextInput::make('user_id')
-                    ->required(),
-                Forms\Components\TextInput::make('pdf_path'),
-                Forms\Components\TextInput::make('total_ht')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('vat_amount')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\TextInput::make('total_ttc')
-                    ->required()
-                    ->numeric(),
-                Forms\Components\DateTimePicker::make('issued_at')
-                    ->required(),
+                Forms\Components\Section::make('Informations')
+                    ->schema([
+                        Forms\Components\TextInput::make('invoice_number')
+                            ->label('Numéro de facture')
+                            ->required()
+                            ->unique(ignoreRecord: true),
+                        Forms\Components\Select::make('order_id')
+                            ->label('Commande')
+                            ->relationship('order', 'reference')
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                if ($state) {
+                                    $order = Order::find($state);
+                                    if ($order) {
+                                        $set('user_id', $order->user_id);
+                                        $set('total_ht', $order->subtotal_ht);
+                                        $set('vat_amount', $order->vat_amount);
+                                        $set('total_ttc', $order->total_ttc);
+                                    }
+                                }
+                            }),
+                        Forms\Components\Select::make('user_id')
+                            ->label('Client')
+                            ->relationship('user', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
+                        Forms\Components\DateTimePicker::make('issued_at')
+                            ->label('Date d\'émission')
+                            ->default(now())
+                            ->required(),
+                    ])
+                    ->columns(2),
+
+                Forms\Components\Section::make('Montants')
+                    ->schema([
+                        Forms\Components\TextInput::make('total_ht')
+                            ->label('Total HT')
+                            ->numeric()
+                            ->prefix('€')
+                            ->required(),
+                        Forms\Components\TextInput::make('vat_amount')
+                            ->label('TVA')
+                            ->numeric()
+                            ->prefix('€')
+                            ->required(),
+                        Forms\Components\TextInput::make('total_ttc')
+                            ->label('Total TTC')
+                            ->numeric()
+                            ->prefix('€')
+                            ->required(),
+                    ])
+                    ->columns(3),
             ]);
     }
 
@@ -54,48 +91,60 @@ class InvoiceResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('invoice_number')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('order_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('user_id')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('pdf_path')
+                    ->label('N° facture')
+                    ->searchable()
+                    ->copyable(),
+                Tables\Columns\TextColumn::make('order.reference')
+                    ->label('Commande')
+                    ->searchable()
+                    ->url(fn (Invoice $record): ?string => $record->order_id ? OrderResource::getUrl('view', ['record' => $record->order_id]) : null),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Client')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('total_ht')
-                    ->numeric()
+                    ->label('Total HT')
+                    ->money('EUR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('vat_amount')
-                    ->numeric()
+                    ->label('TVA')
+                    ->money('EUR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('total_ttc')
-                    ->numeric()
-                    ->sortable(),
+                    ->label('Total TTC')
+                    ->money('EUR')
+                    ->sortable()
+                    ->color('success'),
                 Tables\Columns\TextColumn::make('issued_at')
-                    ->dateTime()
+                    ->label('Date')
+                    ->dateTime('d/m/Y H:i')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('issued_at', 'desc')
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('order')
+                    ->relationship('order', 'reference')
+                    ->label('Commande'),
+                Tables\Filters\SelectFilter::make('user')
+                    ->relationship('user', 'name')
+                    ->label('Client'),
+                Tables\Filters\Filter::make('issued_at')
+                    ->form([
+                        Forms\Components\DatePicker::make('from'),
+                        Forms\Components\DatePicker::make('until'),
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query
+                            ->when($data['from'], fn (Builder $query, $date) => $query->whereDate('issued_at', '>=', $date))
+                            ->when($data['until'], fn (Builder $query, $date) => $query->whereDate('issued_at', '<=', $date));
+                    }),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    //
                 ]),
             ]);
     }
@@ -111,9 +160,7 @@ class InvoiceResource extends Resource
     {
         return [
             'index' => Pages\ListInvoices::route('/'),
-            'create' => Pages\CreateInvoice::route('/create'),
             'view' => Pages\ViewInvoice::route('/{record}'),
-            'edit' => Pages\EditInvoice::route('/{record}/edit'),
         ];
     }
 }
