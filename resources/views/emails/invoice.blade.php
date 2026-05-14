@@ -40,7 +40,7 @@
             <p>La facture PDF est jointe à cet email. Vous pouvez également la consulter dans votre espace professionnel.</p>
 
             <p style="text-align: center;">
-                <a href="{{ config('app.frontend_url', 'http://localhost:8080') }}/commandes" class="button">
+                <a href="{{ env('FRONTEND_URL', 'http://localhost:8080') }}/commandes/{{ $order?->id ?? '' }}" class="button" style="color: #ffffff !important; text-decoration: none;">
                     Voir ma commande
                 </a>
             </p>
