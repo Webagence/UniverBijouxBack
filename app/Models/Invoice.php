@@ -19,6 +19,7 @@ class Invoice extends Model
         'vat_amount',
         'total_ttc',
         'issued_at',
+        'paid',
     ];
 
     protected function casts(): array
@@ -28,6 +29,7 @@ class Invoice extends Model
             'vat_amount' => 'decimal:2',
             'total_ttc' => 'decimal:2',
             'issued_at' => 'datetime',
+            'paid' => 'boolean',
         ];
     }
 

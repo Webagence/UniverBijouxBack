@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/', [OrderController::class, 'store']);
         Route::get('/{id}', [OrderController::class, 'show']);
         Route::post('/{id}/cancel', [OrderController::class, 'cancel']);
+        Route::get('/{id}/invoice', [OrderController::class, 'downloadInvoice']);
     });
 
     // Stripe payments (require approved account)

@@ -9,6 +9,7 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ShippingboSetting;
 use App\Models\SiteSetting;
+use App\Services\InvoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -178,6 +179,10 @@ class StripePaymentController extends Controller
                         $item->product->decrement('stock', $item->quantity);
                     }
                 }
+
+                $invoiceService = app(InvoiceService::class);
+                $invoice = $invoiceService->generateForOrder($order);
+                $invoiceService->sendInvoiceByEmail($invoice);
 
                 if ($order->shippingbo_order_id && ShippingboSetting::isConnected()) {
                     SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');

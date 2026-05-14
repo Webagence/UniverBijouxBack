@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Jobs\SyncOrderToShippingbo;
+use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ShippingboSetting;
+use App\Services\InvoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class OrderController extends Controller
@@ -157,6 +160,34 @@ class OrderController extends Controller
         return response()->json([
             'message' => 'Order cancelled',
             'order' => $order,
+        ]);
+    }
+
+    public function downloadInvoice(Request $request, string $id)
+    {
+        $order = $request->user()->orders()->findOrFail($id);
+
+        $invoice = $order->invoices()->first();
+
+        if (!$invoice) {
+            $invoiceService = app(InvoiceService::class);
+            $invoice = $invoiceService->generateForOrder($order);
+        }
+
+        $pdfPath = storage_path('app/public/' . $invoice->pdf_path);
+
+        if (!file_exists($pdfPath)) {
+            $invoiceService = app(InvoiceService::class);
+            $invoice = $invoiceService->generateForOrder($order);
+            $pdfPath = storage_path('app/public/' . $invoice->pdf_path);
+        }
+
+        if (!file_exists($pdfPath)) {
+            return response()->json(['message' => 'PDF not found.'], 500);
+        }
+
+        return response()->download($pdfPath, $invoice->invoice_number . '.pdf', [
+            'Content-Type' => 'application/pdf',
         ]);
     }
 }

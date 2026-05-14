@@ -115,6 +115,13 @@ class InvoiceResource extends Resource
                     ->money('EUR')
                     ->sortable()
                     ->color('success'),
+                Tables\Columns\IconColumn::make('paid')
+                    ->label('Statut')
+                    ->boolean()
+                    ->trueIcon('heroicon-o-check-circle')
+                    ->falseIcon('heroicon-o-clock')
+                    ->trueColor('success')
+                    ->falseColor('warning'),
                 Tables\Columns\TextColumn::make('issued_at')
                     ->label('Date')
                     ->dateTime('d/m/Y H:i')
