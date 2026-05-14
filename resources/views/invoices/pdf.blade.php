@@ -127,8 +127,8 @@
 <body>
     <div class="header">
         <div class="header-left">
-            @if($brandLogo)
-                <img src="{{ public_path(str_replace('/storage', 'storage', $brandLogo)) }}" alt="{{ $brandName }}">
+            @if($logoPath)
+                <img src="{{ $logoPath }}" alt="{{ $brandName }}">
             @else
                 <h1>{{ $brandName }}</h1>
             @endif

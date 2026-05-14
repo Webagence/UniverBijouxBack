@@ -13,6 +13,8 @@ class InvoiceService
 {
     public function generateForOrder(Order $order): Invoice
     {
+        $order->load(['items', 'user']);
+
         $existing = $order->invoices()->first();
         if ($existing) {
             return $existing;
@@ -53,6 +55,15 @@ class InvoiceService
         $invoiceNumber = 'FAC-' . now()->format('Ymd') . '-' . str_pad((string) random_int(1, 9999), 4, '0', STR_PAD_LEFT);
         $date = now()->locale('fr')->isoFormat('DD MMMM YYYY');
 
+        $logoPath = null;
+        if ($brandLogo) {
+            $logoRelative = str_replace('/storage/', '', parse_url($brandLogo, PHP_URL_PATH) ?? '');
+            $logoFullPath = storage_path('app/public/' . $logoRelative);
+            if (file_exists($logoFullPath)) {
+                $logoPath = $logoFullPath;
+            }
+        }
+
         $html = view('invoices.pdf', [
             'invoiceNumber' => $invoiceNumber,
             'date' => $date,
@@ -62,7 +73,7 @@ class InvoiceService
             'brandTagline' => $brandTagline,
             'brandAddress' => $brandAddress,
             'brandSiret' => $brandSiret,
-            'brandLogo' => $brandLogo,
+            'logoPath' => $logoPath,
             'buyerCompany' => $buyerCompany,
             'buyerContact' => $buyerContact,
             'buyerSiret' => $buyerSiret,
@@ -74,7 +85,7 @@ class InvoiceService
 
         $pdf = Pdf::loadHtml($html)
             ->setPaper('a4')
-            ->setOption(['defaultFont' => 'DejaVu Sans']);
+            ->setOption(['defaultFont' => 'DejaVu Sans', 'isRemoteEnabled' => true]);
 
         $pdfPath = 'invoices/' . $order->id . '/' . $invoiceNumber . '.pdf';
         Storage::disk('public')->put($pdfPath, $pdf->output());

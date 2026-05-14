@@ -226,9 +226,27 @@ class StripePaymentController extends Controller
             return response()->json(['message' => 'Order not found.'], 404);
         }
 
+        if ($order->status === Order::STATUS_PENDING) {
+            $order->update([
+                'status' => Order::STATUS_CONFIRMED,
+                'stripe_payment_status' => 'succeeded',
+            ]);
+
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $item->product->decrement('stock', $item->quantity);
+                }
+            }
+
+            $invoiceService = app(InvoiceService::class);
+            $invoice = $invoiceService->generateForOrder($order);
+            $invoiceService->sendInvoiceByEmail($invoice);
+        }
+
         return response()->json([
             'order' => $order->load('items'),
             'status' => $order->status,
+            'invoice' => $order->invoices()->first(),
         ]);
     }
 }

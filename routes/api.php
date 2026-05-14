@@ -101,6 +101,7 @@ Route::middleware('auth:sanctum')->group(function () {
         // Orders
         Route::get('/orders', [AdminController::class, 'orders']);
         Route::put('/orders/{id}/status', [AdminController::class, 'updateOrderStatus']);
+        Route::post('/orders/{id}/generate-invoice', [AdminController::class, 'generateInvoice']);
 
         // Products
         Route::get('/products', [AdminController::class, 'products']);

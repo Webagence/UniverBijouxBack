@@ -7,6 +7,7 @@ use App\Jobs\SyncProductToShippingbo;
 use App\Http\Controllers\Controller;
 use App\Models\ContentBlock;
 use App\Models\FaqItem;
+use App\Models\Invoice;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\ShippingboSetting;
@@ -15,6 +16,7 @@ use App\Models\Testimonial;
 use App\Models\Ticket;
 use App\Models\Universe;
 use App\Models\User;
+use App\Services\InvoiceService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -71,6 +73,20 @@ class AdminController extends Controller
         }
 
         return response()->json(['message' => 'Order status updated', 'order' => $order]);
+    }
+
+    public function generateInvoice(string $id, Request $request): JsonResponse
+    {
+        $order = Order::with(['items', 'user'])->findOrFail($id);
+        $invoiceService = app(InvoiceService::class);
+
+        $invoice = $invoiceService->generateForOrder($order);
+        $invoiceService->sendInvoiceByEmail($invoice);
+
+        return response()->json([
+            'message' => 'Invoice generated and sent',
+            'invoice' => $invoice,
+        ]);
     }
 
     public function products(): JsonResponse
