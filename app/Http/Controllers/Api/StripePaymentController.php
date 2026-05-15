@@ -39,6 +39,7 @@ class StripePaymentController extends Controller
             'shipping_address.city' => 'required|string',
             'shipping_address.postal_code' => 'required|string',
             'shipping_address.country' => 'required|string',
+            'carrier' => 'nullable|string',
             'notes' => 'nullable|string',
         ]);
 
@@ -166,9 +167,11 @@ class StripePaymentController extends Controller
             $paymentIntent = $event->data->object;
             $stripePaymentIntentId = $paymentIntent->id;
 
-            $order = Order::where('stripe_payment_intent_id', $stripePaymentIntentId)->first();
+            $order = Order::where('stripe_payment_intent_id', $stripePaymentIntentId)
+                ->where('status', Order::STATUS_PENDING)
+                ->first();
 
-            if ($order && $order->status === Order::STATUS_PENDING) {
+            if ($order) {
                 $order->update([
                     'status' => Order::STATUS_CONFIRMED,
                     'stripe_payment_status' => 'succeeded',
@@ -220,28 +223,39 @@ class StripePaymentController extends Controller
 
         $order = Order::where('id', $request->order_id)
             ->where('user_id', $request->user()->id)
+            ->where('status', Order::STATUS_PENDING)
             ->first();
 
         if (!$order) {
-            return response()->json(['message' => 'Order not found.'], 404);
-        }
+            $order = Order::where('id', $request->order_id)
+                ->where('user_id', $request->user()->id)
+                ->first();
 
-        if ($order->status === Order::STATUS_PENDING) {
-            $order->update([
-                'status' => Order::STATUS_CONFIRMED,
-                'stripe_payment_status' => 'succeeded',
-            ]);
-
-            foreach ($order->items as $item) {
-                if ($item->product) {
-                    $item->product->decrement('stock', $item->quantity);
-                }
+            if (!$order) {
+                return response()->json(['message' => 'Order not found.'], 404);
             }
 
-            $invoiceService = app(InvoiceService::class);
-            $invoice = $invoiceService->generateForOrder($order);
-            $invoiceService->sendInvoiceByEmail($invoice);
+            return response()->json([
+                'order' => $order->load('items'),
+                'status' => $order->status,
+                'invoice' => $order->invoices()->first(),
+            ]);
         }
+
+        $order->update([
+            'status' => Order::STATUS_CONFIRMED,
+            'stripe_payment_status' => 'succeeded',
+        ]);
+
+        foreach ($order->items as $item) {
+            if ($item->product) {
+                $item->product->decrement('stock', $item->quantity);
+            }
+        }
+
+        $invoiceService = app(InvoiceService::class);
+        $invoice = $invoiceService->generateForOrder($order);
+        $invoiceService->sendInvoiceByEmail($invoice);
 
         return response()->json([
             'order' => $order->load('items'),
