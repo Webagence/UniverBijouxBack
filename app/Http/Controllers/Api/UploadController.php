@@ -24,7 +24,7 @@ class UploadController extends Controller
         $path = $file->store('products', 'public');
 
         return response()->json([
-            'url' => Storage::url($path),
+            'url' => asset(Storage::url($path)),
             'path' => $path,
         ]);
     }
@@ -44,7 +44,7 @@ class UploadController extends Controller
 
         foreach ($request->file('images') as $file) {
             $path = $file->store('products', 'public');
-            $urls[] = Storage::url($path);
+            $urls[] = asset(Storage::url($path));
         }
 
         return response()->json(['urls' => $urls]);

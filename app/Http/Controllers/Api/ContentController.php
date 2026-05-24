@@ -9,19 +9,44 @@ use App\Models\SiteSetting;
 use App\Models\Testimonial;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ContentController extends Controller
 {
+    private function resolveImageUrl(?string $url): ?string
+    {
+        if (!$url) {
+            return null;
+        }
+        if (str_starts_with($url, 'http')) {
+            return $url;
+        }
+        if (str_starts_with($url, '/storage/')) {
+            return asset($url);
+        }
+        return asset('storage/' . ltrim($url, '/'));
+    }
+
+    private function resolveImageInArray(array $data, string $key = 'image'): array
+    {
+        if (isset($data[$key])) {
+            $data[$key] = $this->resolveImageUrl($data[$key]);
+        }
+        return $data;
+    }
+
     public function hero(): JsonResponse
     {
         $content = ContentBlock::getByKey('hero');
-        return response()->json(['content' => $content?->data ?? []]);
+        $data = $content?->data ?? [];
+        return response()->json(['content' => $this->resolveImageInArray($data)]);
     }
 
     public function atelier(): JsonResponse
     {
         $content = ContentBlock::getByKey('atelier');
-        return response()->json(['content' => $content?->data ?? []]);
+        $data = $content?->data ?? [];
+        return response()->json(['content' => $this->resolveImageInArray($data)]);
     }
 
     public function testimonials(): JsonResponse
