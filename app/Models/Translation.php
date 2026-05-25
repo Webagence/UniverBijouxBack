@@ -74,9 +74,12 @@ class Translation extends Model
     {
         if ($locale) {
             Cache::forget("translation:{$modelType}:{$modelId}:{$locale}:*");
+        }
+
+        try {
             Cache::tags(['translations'])->flush();
-        } else {
-            Cache::tags(['translations'])->flush();
+        } catch (\Exception $e) {
+            Cache::flush();
         }
     }
 

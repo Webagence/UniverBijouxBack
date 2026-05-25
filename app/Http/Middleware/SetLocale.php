@@ -15,7 +15,14 @@ class SetLocale
 
     public function __construct()
     {
-        $this->supportedLocales = config('translation.locales', ['fr', 'en']);
+        $localesConfig = config('translation.locales', ['fr', 'en']);
+
+        if (isset($localesConfig['fr'])) {
+            $this->supportedLocales = array_keys($localesConfig);
+        } else {
+            $this->supportedLocales = $localesConfig;
+        }
+
         $this->defaultLocale = config('translation.default_locale', 'fr');
     }
 
@@ -44,7 +51,7 @@ class SetLocale
     {
         $locale = $request->query('locale') ?? $request->query('lang');
 
-        if ($locale && $this->isSupported($locale)) {
+        if (is_string($locale) && $this->isSupported($locale)) {
             return $locale;
         }
 
@@ -57,7 +64,7 @@ class SetLocale
             ?? $request->header('X-Lang')
             ?? $request->header('Accept-Language');
 
-        if ($locale) {
+        if (is_string($locale) && !empty($locale)) {
             if (str_contains($locale, ',')) {
                 $locale = explode(',', $locale)[0];
             }
@@ -76,7 +83,7 @@ class SetLocale
     {
         $locale = $request->cookie('locale') ?? $request->cookie('lang');
 
-        if ($locale && $this->isSupported($locale)) {
+        if (is_string($locale) && $this->isSupported($locale)) {
             return $locale;
         }
 
@@ -87,7 +94,7 @@ class SetLocale
     {
         $acceptLanguage = $request->server('HTTP_ACCEPT_LANGUAGE');
 
-        if ($acceptLanguage) {
+        if (is_string($acceptLanguage) && !empty($acceptLanguage)) {
             $languages = explode(',', $acceptLanguage);
 
             foreach ($languages as $lang) {

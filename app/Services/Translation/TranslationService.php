@@ -63,10 +63,20 @@ class TranslationService
             try {
                 if ($modelConfig['is_json'] ?? false) {
                     $data = is_string($value) ? json_decode($value, true) : $value;
-                    $translatedValue = $this->translator->translateJson($data, $sourceLocale, $targetLocale);
-                    $translatedValue = json_encode($translatedValue, JSON_UNESCAPED_UNICODE);
+                    if (!is_array($data)) {
+                        $data = [];
+                    }
+                    $translatedData = $this->translator->translateJson($data, $sourceLocale, $targetLocale);
+                    $translatedValue = is_string($translatedData) ? $translatedData : json_encode($translatedData, JSON_UNESCAPED_UNICODE);
                 } else {
+                    if (is_array($value)) {
+                        $value = json_encode($value, JSON_UNESCAPED_UNICODE);
+                    }
                     $translatedValue = $this->translator->translate($value, $sourceLocale, $targetLocale);
+                }
+
+                if (!is_string($translatedValue)) {
+                    $translatedValue = (string) $translatedValue;
                 }
 
                 Translation::create([

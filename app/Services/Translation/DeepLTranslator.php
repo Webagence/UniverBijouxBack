@@ -129,8 +129,108 @@ class DeepLTranslator implements TranslatorInterface
 
     public function translateJson(array $data, string $sourceLocale, string $targetLocale, array $context = []): array
     {
-        $translator = app(OpenAITranslator::class);
-        return $translator->translateJson($data, $sourceLocale, $targetLocale, $context);
+        $translated = $data;
+
+        $translatableStrings = $this->extractTranslatableStrings($data);
+
+        if (!empty($translatableStrings)) {
+            $translatedStrings = $this->translateBatch(
+                $translatableStrings,
+                $sourceLocale,
+                $targetLocale,
+                $context
+            );
+
+            $translated = $this->replaceTranslatableStrings($data, $translatedStrings);
+        }
+
+        return $translated;
+    }
+
+    protected function extractTranslatableStrings(array $data, string $prefix = ''): array
+    {
+        $strings = [];
+
+        foreach ($data as $key => $value) {
+            $fullKey = $prefix ? "{$prefix}.{$key}" : $key;
+
+            if (is_array($value)) {
+                if ($this->isTranslatableArray($value)) {
+                    foreach ($value as $index => $item) {
+                        if (is_string($item) && !empty(trim($item))) {
+                            $strings["{$fullKey}.{$index}"] = $item;
+                        } elseif (is_array($item)) {
+                            $strings = array_merge($strings, $this->extractTranslatableStrings($item, "{$fullKey}.{$index}"));
+                        }
+                    }
+                } else {
+                    $strings = array_merge($strings, $this->extractTranslatableStrings($value, $fullKey));
+                }
+            } elseif (is_string($value) && !empty(trim($value))) {
+                $skipKeys = ['image', 'image_url', 'logo', 'icon', 'path', 'url', 'email', 'phone'];
+                if (!$this->isSkippedKey($key, $skipKeys)) {
+                    $strings[$fullKey] = $value;
+                }
+            }
+        }
+
+        return $strings;
+    }
+
+    protected function isTranslatableArray(array $value): bool
+    {
+        if (empty($value)) {
+            return false;
+        }
+
+        $firstValue = reset($value);
+        return !is_array($firstValue) || $this->isSimpleArray($value);
+    }
+
+    protected function isSimpleArray(array $value): bool
+    {
+        foreach ($value as $item) {
+            if (is_array($item)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    protected function isSkippedKey(string $key, array $skipKeys): bool
+    {
+        foreach ($skipKeys as $skip) {
+            if (stripos($key, $skip) !== false) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected function replaceTranslatableStrings(array $data, array $translations): array
+    {
+        $result = $data;
+
+        foreach ($translations as $key => $translated) {
+            $parts = explode('.', $key);
+            $current = &$result;
+
+            foreach ($parts as $i => $part) {
+                if ($i === count($parts) - 1) {
+                    if (isset($current[$part]) && is_string($current[$part])) {
+                        $current[$part] = $translated;
+                    }
+                } else {
+                    if (isset($current[$part]) && is_array($current[$part])) {
+                        $current = &$current[$part];
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $result;
     }
 
     public function generateSlug(string $text, string $sourceLocale, string $targetLocale): string
