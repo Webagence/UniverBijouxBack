@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Testimonial extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, Translatable;
 
     protected $fillable = [
         'author',
@@ -18,12 +19,14 @@ class Testimonial extends Model
         'rating',
         'display_order',
         'active',
+        'needs_translation',
     ];
 
     protected function casts(): array
     {
         return [
             'active' => 'boolean',
+            'needs_translation' => 'boolean',
         ];
     }
 

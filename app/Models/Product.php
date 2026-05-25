@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,10 +11,11 @@ use Illuminate\Support\Str;
 
 class Product extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, Translatable;
 
     protected $fillable = [
         'slug',
+        'slugs',
         'name',
         'reference',
         'description',
@@ -46,6 +48,7 @@ class Product extends Model
             'vat_rate' => 'decimal:2',
             'images' => 'array',
             'variations' => 'array',
+            'slugs' => 'array',
             'is_new' => 'boolean',
             'active' => 'boolean',
             'shippingbo_synced_at' => 'datetime',

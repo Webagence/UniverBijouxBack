@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,10 +10,11 @@ use Illuminate\Support\Str;
 
 class Universe extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, Translatable;
 
     protected $fillable = [
         'slug',
+        'slugs',
         'name',
         'description',
         'image_url',
@@ -21,7 +23,9 @@ class Universe extends Model
 
     protected function casts(): array
     {
-        return [];
+        return [
+            'slugs' => 'array',
+        ];
     }
 
     public function products()

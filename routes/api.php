@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ShippingboController;
 use App\Http\Controllers\Api\ShippingboWebhookController;
 use App\Http\Controllers\Api\StripePaymentController;
 use App\Http\Controllers\Api\TicketController;
+use App\Http\Controllers\Api\TranslationController;
 use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
 
@@ -52,6 +53,14 @@ Route::post('/shippingbo/webhook', [ShippingboWebhookController::class, 'handle'
 
 // Shippingbo OAuth callback (public, receives OAuth redirect)
 Route::get('/shippingbo/callback', [ShippingboController::class, 'handleCallback']);
+
+// Translation routes (public for locale detection, admin for management)
+Route::prefix('translations')->group(function () {
+    Route::get('/locales', [TranslationController::class, 'locales']);
+    Route::get('/current', [TranslationController::class, 'getCurrentLocale']);
+    Route::post('/set-locale', [TranslationController::class, 'setLocale']);
+    Route::post('/translate', [TranslationController::class, 'translate']);
+});
 
 // Protected routes (require authentication)
 Route::middleware('auth:sanctum')->group(function () {
@@ -136,6 +145,18 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/sync/products', [ShippingboController::class, 'syncAllProducts']);
             Route::post('/sync/products/{productId}', [ShippingboController::class, 'syncProduct']);
             Route::post('/sync/orders/{orderId}', [ShippingboController::class, 'syncOrder']);
+        });
+
+        // Translations
+        Route::prefix('translations')->group(function () {
+            Route::get('/batches', [TranslationController::class, 'getBatches']);
+            Route::get('/batches/{batchId}', [TranslationController::class, 'getBatch']);
+            Route::post('/batches', [TranslationController::class, 'createBatch']);
+            Route::get('/{modelType}/{modelId}', [TranslationController::class, 'getModelTranslations']);
+            Route::put('/{modelType}/{modelId}', [TranslationController::class, 'updateTranslation']);
+            Route::post('/{modelType}/{modelId}/translate', [TranslationController::class, 'translateModel']);
+            Route::post('/translate-all', [TranslationController::class, 'translateAllModels']);
+            Route::post('/clear-cache', [TranslationController::class, 'clearCache']);
         });
     });
 });
