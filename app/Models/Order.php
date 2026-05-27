@@ -23,6 +23,7 @@ class Order extends Model
         'user_id',
         'status',
         'subtotal_ht',
+        'discount_ht',
         'vat_amount',
         'shipping_ht',
         'total_ttc',
@@ -40,6 +41,7 @@ class Order extends Model
     {
         return [
             'subtotal_ht' => 'decimal:2',
+            'discount_ht' => 'decimal:2',
             'vat_amount' => 'decimal:2',
             'shipping_ht' => 'decimal:2',
             'total_ttc' => 'decimal:2',
@@ -67,6 +69,11 @@ class Order extends Model
     public function items()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function orderDiscounts()
+    {
+        return $this->hasMany(OrderDiscount::class);
     }
 
     public function invoices()

@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Jobs\SyncOrderToShippingbo;
 use App\Http\Controllers\Controller;
+use App\Models\Discount;
 use App\Models\Order;
+use App\Models\OrderDiscount;
 use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ShippingboSetting;
@@ -41,6 +43,7 @@ class StripePaymentController extends Controller
             'shipping_address.country' => 'required|string',
             'carrier' => 'nullable|string',
             'notes' => 'nullable|string',
+            'discount_code' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -76,23 +79,65 @@ class StripePaymentController extends Controller
                     return response()->json(['message' => "Minimum order quantity for {$product->name} is {$product->moq}."], 400);
                 }
 
-                $lineTotal = $product->price_ht * $item['quantity'];
+                $unitPrice = $product->sale_price_ht ?? $product->price_ht;
+                $lineTotal = $unitPrice * $item['quantity'];
                 $subtotalHt += $lineTotal;
 
                 $lineItems[] = [
                     'product_id' => $product->id,
                     'product_name' => $product->name,
                     'product_reference' => $product->reference,
-                    'unit_price_ht' => $product->price_ht,
+                    'unit_price_ht' => $unitPrice,
                     'quantity' => $item['quantity'],
                     'line_total_ht' => $lineTotal,
                 ];
             }
 
+            $discountHt = 0;
+            $appliedDiscount = null;
+
+            if ($request->filled('discount_code')) {
+                $code = strtoupper(trim($request->discount_code));
+                $discount = Discount::whereRaw('UPPER(code) = ?', [$code])
+                    ->available()
+                    ->first();
+
+                if ($discount) {
+                    $discountHt = $this->calculateDiscountAmount($discount, $subtotalHt);
+
+                    if ($discount->applies_to === 'specific_products') {
+                        $productIds = $discount->products()->pluck('products.id')->toArray();
+                        $cartProductIds = collect($request->items)->pluck('product_id')->toArray();
+                        if (!empty(array_intersect($productIds, $cartProductIds))) {
+                            $appliedDiscount = $discount;
+                        }
+                    } elseif ($discount->applies_to === 'specific_universes') {
+                        $universeIds = $discount->products()->with('universe')->get()->pluck('universe.id')->unique()->toArray();
+                        $cartProductIds = collect($request->items)->pluck('product_id')->toArray();
+                        $cartProducts = Product::whereIn('id', $cartProductIds)->get();
+                        if ($cartProducts->some(fn ($p) => $p->universe && in_array($p->universe->id, $universeIds))) {
+                            $appliedDiscount = $discount;
+                        }
+                    } else {
+                        $appliedDiscount = $discount;
+                    }
+
+                    if ($discount->min_order_amount && $subtotalHt < $discount->min_order_amount) {
+                        $appliedDiscount = null;
+                        $discountHt = 0;
+                    }
+                }
+            }
+
             $vatRate = 20;
-            $vatAmount = $subtotalHt * ($vatRate / 100);
+            $vatAmount = ($subtotalHt - $discountHt) * ($vatRate / 100);
             $shippingHt = $subtotalHt >= 300 ? 0 : 15;
-            $totalTtc = $subtotalHt + $vatAmount + $shippingHt;
+
+            if ($appliedDiscount && $appliedDiscount->type === 'free_shipping') {
+                $shippingHt = 0;
+            }
+
+            $totalTtc = ($subtotalHt - $discountHt) + $vatAmount + $shippingHt;
 
             $totalCents = (int) round($totalTtc * 100);
 
@@ -112,6 +157,7 @@ class StripePaymentController extends Controller
                 'user_id' => $user->id,
                 'status' => Order::STATUS_PENDING,
                 'subtotal_ht' => $subtotalHt,
+                'discount_ht' => $discountHt,
                 'vat_amount' => $vatAmount,
                 'shipping_ht' => $shippingHt,
                 'total_ttc' => $totalTtc,
@@ -123,6 +169,19 @@ class StripePaymentController extends Controller
 
             foreach ($lineItems as $itemData) {
                 $order->items()->create($itemData);
+            }
+
+            if ($appliedDiscount) {
+                OrderDiscount::create([
+                    'order_id' => $order->id,
+                    'discount_id' => $appliedDiscount->id,
+                    'code' => $appliedDiscount->code,
+                    'type' => $appliedDiscount->type,
+                    'value' => $appliedDiscount->value,
+                    'amount_ht' => $discountHt,
+                ]);
+
+                $appliedDiscount->incrementUsage();
             }
 
             if (ShippingboSetting::isConnected()) {
@@ -262,5 +321,32 @@ class StripePaymentController extends Controller
             'status' => $order->status,
             'invoice' => $order->invoices()->first(),
         ]);
+    }
+
+    private function calculateDiscountAmount(Discount $discount, float $subtotalHt): float
+    {
+        $amount = 0;
+
+        switch ($discount->type) {
+            case 'percentage':
+                $amount = $subtotalHt * ($discount->value / 100);
+                break;
+            case 'fixed':
+                $amount = $discount->value;
+                break;
+            case 'free_shipping':
+                $amount = 0;
+                break;
+        }
+
+        if ($discount->max_discount_amount && $amount > $discount->max_discount_amount) {
+            $amount = $discount->max_discount_amount;
+        }
+
+        if ($amount > $subtotalHt) {
+            $amount = $subtotalHt;
+        }
+
+        return round($amount, 2);
     }
 }

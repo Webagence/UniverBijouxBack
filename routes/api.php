@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\AdminController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ContentController;
+use App\Http\Controllers\Api\DiscountController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\ShippingboController;
@@ -62,14 +63,19 @@ Route::prefix('translations')->group(function () {
     Route::post('/translate', [TranslationController::class, 'translate']);
 });
 
-// Protected routes (require authentication)
-Route::middleware('auth:sanctum')->group(function () {
-    // Auth
-    Route::prefix('auth')->group(function () {
-        Route::post('/logout', [AuthController::class, 'logout']);
-        Route::get('/me', [AuthController::class, 'me']);
-        Route::put('/profile', [AuthController::class, 'updateProfile']);
-    });
+    // Protected routes (require authentication)
+    Route::middleware('auth:sanctum')->group(function () {
+        // Auth
+        Route::prefix('auth')->group(function () {
+            Route::post('/logout', [AuthController::class, 'logout']);
+            Route::get('/me', [AuthController::class, 'me']);
+            Route::put('/profile', [AuthController::class, 'updateProfile']);
+        });
+
+        // Discounts
+        Route::prefix('discounts')->group(function () {
+            Route::post('/validate', [DiscountController::class, 'validate']);
+        });
 
     // Orders (require approved account)
     Route::middleware('approved')->prefix('orders')->group(function () {
