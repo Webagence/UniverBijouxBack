@@ -2,12 +2,15 @@
 
 namespace App\Console\Commands;
 
+use App\Jobs\TranslateBatch;
 use App\Jobs\TranslateModel;
 use App\Models\ContentBlock;
 use App\Models\FaqItem;
 use App\Models\Product;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
+use App\Models\TranslationBatch;
+use App\Models\TranslationJob;
 use App\Models\Universe;
 use Illuminate\Console\Command;
 
@@ -56,24 +59,36 @@ class TranslateExistingContent extends Command
             return Command::FAILURE;
         }
 
+        $batch = TranslationBatch::create([
+            'name' => 'Traduction ' . now()->format('d/m/Y H:i'),
+            'source_locale' => $sourceLocale,
+            'target_locale' => $targetLocale,
+            'total_items' => 0,
+            'status' => 'pending',
+        ]);
+
         $totalJobs = 0;
 
         foreach ($modelsToTranslate as $name => $class) {
             $count = $class::count();
             $this->info("Queuing {$count} {$name}(s) for translation...");
 
-            $class::cursor()->each(function ($model) use ($targetLocale, $sourceLocale, &$totalJobs) {
-                TranslateModel::dispatch(
-                    get_class($model),
-                    $model->getKey(),
-                    $targetLocale,
-                    $sourceLocale
-                );
+            $class::cursor()->each(function ($model) use ($targetLocale, $sourceLocale, $batch, &$totalJobs) {
+                TranslationJob::create([
+                    'batch_id' => $batch->id,
+                    'model_type' => get_class($model),
+                    'model_id' => $model->getKey(),
+                    'locale' => $targetLocale,
+                ]);
                 $totalJobs++;
             });
         }
 
-        $this->info("Dispatched {$totalJobs} translation jobs.");
+        $batch->update(['total_items' => $totalJobs]);
+
+        TranslateBatch::dispatch($batch->id);
+
+        $this->info("Dispatched batch {$batch->id} with {$totalJobs} translation jobs.");
         $this->info("Run 'php artisan queue:work --queue=translations' to process them.");
 
         return Command::SUCCESS;
