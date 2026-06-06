@@ -65,7 +65,7 @@ class ShippingboSetting extends Model
             'X-API-VERSION' => '1',
             'X-API-APP-ID' => self::get('app_id', ''),
             'Authorization' => 'Bearer ' . self::get('access_token', ''),
-            'User-Agent' => 'UniverBijoux/1.0',
+            'User-Agent' => 'FranceGems/1.0',
         ];
     }
 }

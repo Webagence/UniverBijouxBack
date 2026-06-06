@@ -1,6 +1,6 @@
-# UniverBijoux - Backend Laravel & Admin Filament
+# FranceGems - Backend Laravel & Admin Filament
 
-Backend API REST et panel d'administration pour la plateforme de vente B2B de bijoux UniverBijoux.
+Backend API REST et panel d'administration pour la plateforme de vente B2B de bijoux FranceGems.
 
 ## Architecture
 

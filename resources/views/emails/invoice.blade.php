@@ -48,7 +48,7 @@
 
         <div class="footer">
             <p>Cet email a été envoyé automatiquement, merci de ne pas y répondre directement.</p>
-            <p>{{ config('app.name', 'UniverBijoux') }} · Grossiste B2B</p>
+            <p>{{ config('app.name', 'FranceGems') }} · Grossiste B2B</p>
         </div>
     </div>
 </body>

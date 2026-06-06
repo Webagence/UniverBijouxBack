@@ -247,7 +247,7 @@ class ShippingboService
                 'product_ref' => $item->product_reference,
                 'title' => $item->product_name,
                 'quantity' => $item->quantity,
-                'source' => 'UniverBijoux',
+                'source' => 'FranceGems',
                 'source_ref' => "{$order->reference}-{$item->id}",
                 'price_tax_included_cents' => (int) round($item->line_total_ht * 1.2 * 100),
                 'price_tax_included_currency' => 'EUR',
@@ -257,11 +257,11 @@ class ShippingboService
         }
 
         $orderData = [
-            'source' => 'UniverBijoux',
+            'source' => 'FranceGems',
             'source_ref' => $order->reference,
             'shipping_address_id' => $shippingAddressId,
             'billing_address_id' => $billingAddressId,
-            'origin' => 'UniverBijoux',
+            'origin' => 'FranceGems',
             'origin_ref' => $order->reference,
             'origin_created_at' => $order->created_at->toIso8601String(),
             'total_price_cents' => (int) round($order->total_ttc * 100),
