@@ -187,6 +187,12 @@
                 <td class="label">Sous-total HT</td>
                 <td class="value">{{ number_format($order->subtotal_ht, 2, ',', ' ') }} €</td>
             </tr>
+            @if($order->discount_ht > 0)
+            <tr>
+                <td class="label">Remise</td>
+                <td class="value" style="color:#dc2626;">- {{ number_format($order->discount_ht, 2, ',', ' ') }} €</td>
+            </tr>
+            @endif
             <tr>
                 <td class="label">Livraison HT</td>
                 <td class="value">{{ number_format($order->shipping_ht, 2, ',', ' ') }} €</td>
