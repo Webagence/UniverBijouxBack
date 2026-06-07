@@ -20,6 +20,8 @@ class Testimonial extends Model
         'display_order',
         'active',
         'needs_translation',
+        'submitted_by',
+        'submitted_at',
     ];
 
     protected function casts(): array
@@ -27,7 +29,13 @@ class Testimonial extends Model
         return [
             'active' => 'boolean',
             'needs_translation' => 'boolean',
+            'submitted_at' => 'datetime',
         ];
+    }
+
+    public function submittedBy()
+    {
+        return $this->belongsTo(User::class, 'submitted_by');
     }
 
     public function scopeActive($query)
@@ -38,5 +46,10 @@ class Testimonial extends Model
     public function scopeOrdered($query)
     {
         return $query->orderBy('display_order')->orderBy('created_at', 'desc');
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('active', false);
     }
 }

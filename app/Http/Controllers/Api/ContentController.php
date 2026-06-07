@@ -88,6 +88,48 @@ class ContentController extends Controller
         return response()->json(['testimonials' => $testimonials]);
     }
 
+    public function submitTestimonial(Request $request): JsonResponse
+    {
+        $validated = $request->validate([
+            'quote' => 'required|string|max:1000',
+        ]);
+
+        $user = $request->user();
+        $companyName = $user->profile?->company_name ?? $user->name;
+
+        $testimonial = Testimonial::create([
+            'author' => $user->name,
+            'role' => 'Revendeur partenaire',
+            'shop' => $companyName,
+            'quote' => $validated['quote'],
+            'rating' => 5,
+            'display_order' => 0,
+            'active' => false,
+            'submitted_by' => $user->id,
+            'submitted_at' => now(),
+        ]);
+
+        return response()->json([
+            'message' => 'Votre témoignage a été soumis et sera visible après validation par l\'équipe.',
+            'testimonial' => $testimonial,
+        ], 201);
+    }
+
+    public function myTestimonials(Request $request): JsonResponse
+    {
+        $testimonials = Testimonial::where('submitted_by', $request->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get()
+            ->map(fn ($t) => [
+                'id' => $t->id,
+                'quote' => $t->quote,
+                'active' => $t->active,
+                'submitted_at' => $t->submitted_at?->toIso8601String(),
+            ]);
+
+        return response()->json(['testimonials' => $testimonials]);
+    }
+
     public function faq(Request $request): JsonResponse
     {
         $locale = App::getLocale();

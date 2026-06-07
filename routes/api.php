@@ -77,6 +77,10 @@ Route::prefix('translations')->group(function () {
             Route::post('/validate', [DiscountController::class, 'validate']);
         });
 
+    // Testimonials (pro users can submit)
+    Route::get('/my-testimonials', [ContentController::class, 'myTestimonials']);
+    Route::post('/testimonials', [ContentController::class, 'submitTestimonial']);
+
     // Orders (require approved account)
     Route::middleware('approved')->prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index']);

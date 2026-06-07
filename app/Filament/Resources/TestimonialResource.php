@@ -10,6 +10,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Filters\SelectFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -69,7 +70,17 @@ class TestimonialResource extends Resource
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('active')
-                    ->boolean(),
+                    ->boolean()
+                    ->label('Approuvé'),
+                Tables\Columns\TextColumn::make('submittedBy.name')
+                    ->label('Soumis par')
+                    ->searchable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('submitted_at')
+                    ->label('Soumis le')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -80,8 +91,14 @@ class TestimonialResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                SelectFilter::make('active')
+                    ->label('Statut')
+                    ->options([
+                        '1' => 'Approuvé',
+                        '0' => 'En attente',
+                    ]),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
