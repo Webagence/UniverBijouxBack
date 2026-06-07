@@ -50,14 +50,24 @@ class ContentController extends Controller
             return [];
         }
 
+        $originalData = $contentBlock->data ?? [];
+
         $translations = $this->translationService->getTranslationsForModel($contentBlock, $locale);
 
         if (!empty($translations['data'])) {
             $data = is_string($translations['data']) ? json_decode($translations['data'], true) : $translations['data'];
-            return $this->resolveImageInArray($data);
+        } else {
+            $data = $originalData;
         }
 
-        return $this->resolveImageInArray($contentBlock->data ?? []);
+        // Preserve original media URLs across locales — only translate text
+        foreach (['image', 'image_url', 'logo', 'icon'] as $mediaKey) {
+            if (isset($originalData[$mediaKey])) {
+                $data[$mediaKey] = $originalData[$mediaKey];
+            }
+        }
+
+        return $this->resolveImageInArray($data);
     }
 
     public function hero(): JsonResponse

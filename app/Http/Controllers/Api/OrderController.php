@@ -58,6 +58,7 @@ class OrderController extends Controller
             'carrier' => 'nullable|string',
             'notes' => 'nullable|string',
             'discount_code' => 'nullable|string',
+            'auto_discount_id' => 'nullable|uuid|exists:discounts,id',
         ]);
 
         if ($validator->fails()) {
@@ -110,36 +111,44 @@ class OrderController extends Controller
             $discountHt = 0;
             $appliedDiscount = null;
 
+            $discount = null;
+
             if ($request->filled('discount_code')) {
                 $code = strtoupper(trim($request->discount_code));
                 $discount = Discount::whereRaw('UPPER(code) = ?', [$code])
                     ->available()
                     ->first();
+            } elseif ($request->filled('auto_discount_id')) {
+                $discount = Discount::whereNull('code')
+                    ->where('id', $request->auto_discount_id)
+                    ->available()
+                    ->whereHas('users', fn ($q) => $q->where('user_id', $user->id))
+                    ->first();
+            }
 
-                if ($discount) {
-                    $discountHt = $this->calculateDiscountAmount($discount, $subtotalHt);
+            if ($discount) {
+                $discountHt = $this->calculateDiscountAmount($discount, $subtotalHt);
 
-                    if ($discount->applies_to === 'specific_products') {
-                        $productIds = $discount->products()->pluck('products.id')->toArray();
-                        $cartProductIds = collect($request->items)->pluck('product_id')->toArray();
-                        if (!empty(array_intersect($productIds, $cartProductIds))) {
-                            $appliedDiscount = $discount;
-                        }
-                    } elseif ($discount->applies_to === 'specific_universes') {
-                        $universeIds = $discount->products()->with('universe')->get()->pluck('universe.id')->unique()->toArray();
-                        $cartProductIds = collect($request->items)->pluck('product_id')->toArray();
-                        $cartProducts = Product::whereIn('id', $cartProductIds)->get();
-                        if ($cartProducts->some(fn ($p) => $p->universe && in_array($p->universe->id, $universeIds))) {
-                            $appliedDiscount = $discount;
-                        }
-                    } else {
+                if ($discount->applies_to === 'specific_products') {
+                    $productIds = $discount->products()->pluck('products.id')->toArray();
+                    $cartProductIds = collect($request->items)->pluck('product_id')->toArray();
+                    if (!empty(array_intersect($productIds, $cartProductIds))) {
                         $appliedDiscount = $discount;
                     }
-
-                    if ($discount->min_order_amount && $subtotalHt < $discount->min_order_amount) {
-                        $appliedDiscount = null;
-                        $discountHt = 0;
+                } elseif ($discount->applies_to === 'specific_universes') {
+                    $universeIds = $discount->products()->with('universe')->get()->pluck('universe.id')->unique()->toArray();
+                    $cartProductIds = collect($request->items)->pluck('product_id')->toArray();
+                    $cartProducts = Product::whereIn('id', $cartProductIds)->get();
+                    if ($cartProducts->some(fn ($p) => $p->universe && in_array($p->universe->id, $universeIds))) {
+                        $appliedDiscount = $discount;
                     }
+                } else {
+                    $appliedDiscount = $discount;
+                }
+
+                if ($discount->min_order_amount && $subtotalHt < $discount->min_order_amount) {
+                    $appliedDiscount = null;
+                    $discountHt = 0;
                 }
             }
 

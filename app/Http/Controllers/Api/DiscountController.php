@@ -10,6 +10,27 @@ use Illuminate\Http\Request;
 
 class DiscountController extends Controller
 {
+    public function my(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $discounts = Discount::whereNull('code')
+            ->where('is_active', true)
+            ->where(function ($q) {
+                $q->whereNull('valid_from')->orWhere('valid_from', '<=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('valid_until')->orWhere('valid_until', '>=', now());
+            })
+            ->where(function ($q) {
+                $q->whereNull('usage_limit')->orWhereColumn('usage_count', '<', 'usage_limit');
+            })
+            ->whereHas('users', fn ($q) => $q->where('user_id', $user->id))
+            ->get();
+
+        return response()->json(['discounts' => $discounts]);
+    }
+
     public function validate(Request $request): JsonResponse
     {
         $request->validate([

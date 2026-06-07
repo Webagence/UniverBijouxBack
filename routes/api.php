@@ -74,6 +74,7 @@ Route::prefix('translations')->group(function () {
 
         // Discounts
         Route::prefix('discounts')->group(function () {
+            Route::get('/my', [DiscountController::class, 'my']);
             Route::post('/validate', [DiscountController::class, 'validate']);
         });
 
