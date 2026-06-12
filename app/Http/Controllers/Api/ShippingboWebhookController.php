@@ -80,7 +80,7 @@ class ShippingboWebhookController extends Controller
             }
         }
 
-        return true;
+        return false;
     }
 
     protected function ipInRange(string $ip, string $cidr): bool

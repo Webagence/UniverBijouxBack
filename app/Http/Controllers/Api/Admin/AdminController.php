@@ -69,7 +69,7 @@ class AdminController extends Controller
         $order->update(['status' => $request->status]);
 
         if (ShippingboSetting::isConnected() && $order->shippingbo_order_id) {
-            SyncOrderToShippingbo::dispatch($order->id, 'update_order_status')->onQueue('shippingbo');
+            SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
         }
 
         return response()->json(['message' => 'Order status updated', 'order' => $order]);

@@ -32,6 +32,7 @@ class ManageShippingbo extends Page
             'client_id' => '',
             'client_secret' => '',
             'app_id' => '',
+            'webhook_secret' => '',
         ];
 
         if (ShippingboSetting::isConnected()) {
@@ -50,12 +51,14 @@ class ManageShippingbo extends Page
             'data.client_id' => 'required|string',
             'data.client_secret' => 'nullable|string',
             'data.app_id' => 'nullable|string',
+            'data.webhook_secret' => 'nullable|string',
         ]);
 
         ShippingboSetting::set('shippingbo', $this->data);
         ShippingboSetting::set('client_id', $this->data['client_id']);
         ShippingboSetting::set('client_secret', $this->data['client_secret']);
         ShippingboSetting::set('app_id', $this->data['app_id']);
+        ShippingboSetting::set('webhook_secret', $this->data['webhook_secret'] ?? '');
 
         Notification::make()
             ->title('Paramètres Shippingbo enregistrés')

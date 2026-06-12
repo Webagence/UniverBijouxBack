@@ -44,7 +44,7 @@ class SyncOrderToShippingbo implements ShouldQueue
         try {
             $result = match ($this->action) {
                 'sync_order' => $shippingboService->syncOrderToShippingbo($order),
-                'cancel_order' => $shippingboService->cancelOrder($order->shippingbo_order_id),
+                'cancel_order' => $shippingboService->cancelOrder($order),
                 default => throw new \Exception("Unknown action: {$this->action}"),
             };
 

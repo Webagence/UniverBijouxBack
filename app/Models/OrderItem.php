@@ -18,6 +18,7 @@ class OrderItem extends Model
         'unit_price_ht',
         'quantity',
         'line_total_ht',
+        'vat_rate',
     ];
 
     protected function casts(): array
@@ -25,6 +26,7 @@ class OrderItem extends Model
         return [
             'unit_price_ht' => 'decimal:2',
             'line_total_ht' => 'decimal:2',
+            'vat_rate' => 'decimal:2',
         ];
     }
 

@@ -24,6 +24,7 @@ class ShippingboController extends Controller
             'client_id' => ShippingboSetting::get('client_id'),
             'client_secret' => ShippingboSetting::get('client_secret') ? '••••••••' : null,
             'app_id' => ShippingboSetting::get('app_id'),
+            'webhook_secret' => ShippingboSetting::get('webhook_secret') ? '••••••••' : null,
             'is_connected' => ShippingboSetting::isConnected(),
             'token_expires_at' => ShippingboSetting::get('token_expires_at'),
             'webhook_url' => url('/api/shippingbo/webhook'),
@@ -36,6 +37,7 @@ class ShippingboController extends Controller
             'client_id' => 'required|string',
             'client_secret' => 'required|string',
             'app_id' => 'nullable|string',
+            'webhook_secret' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -45,6 +47,7 @@ class ShippingboController extends Controller
         ShippingboSetting::set('client_id', $request->client_id);
         ShippingboSetting::set('client_secret', $request->client_secret);
         ShippingboSetting::set('app_id', $request->app_id);
+        ShippingboSetting::set('webhook_secret', $request->webhook_secret ?? '');
 
         return response()->json(['message' => 'Shippingbo settings saved']);
     }

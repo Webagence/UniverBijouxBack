@@ -77,7 +77,7 @@ class ShippingboService
                 'client_id' => ShippingboSetting::get('client_id'),
                 'client_secret' => ShippingboSetting::get('client_secret'),
                 'refresh_token' => $refreshToken,
-                'redirect_uri' => config('app.url') . '/admin/shippingbo/callback',
+                'redirect_uri' => url('/api/shippingbo/callback'),
             ]);
 
         if ($response->failed()) {
@@ -158,9 +158,16 @@ class ShippingboService
         ]);
     }
 
-    public function cancelOrder(string $orderId): array
+    public function cancelOrder(\App\Models\Order $order): array
     {
-        return $this->request('delete', "orders/{$orderId}");
+        $result = $this->request('delete', "orders/{$order->shippingbo_order_id}");
+
+        $order->update([
+            'shippingbo_order_id' => null,
+            'shippingbo_synced_at' => null,
+        ]);
+
+        return $result;
     }
 
     // ==================== Products ====================
@@ -235,23 +242,22 @@ class ShippingboService
             'company_name' => $order->user->company_name ?? null,
         ];
 
-        $shippingAddress = $this->createAddress($addressData);
-        $shippingAddressId = $shippingAddress['address']['id'] ?? null;
-
-        $billingAddress = $this->createAddress($addressData);
-        $billingAddressId = $billingAddress['address']['id'] ?? null;
+        $address = $this->createAddress($addressData);
+        $addressId = $address['address']['id'] ?? null;
 
         $orderItems = [];
         foreach ($order->items as $item) {
+            $vatRate = $item->vat_rate ?? 20;
+            $vatMultiplier = 1 + ($vatRate / 100);
             $orderItems[] = [
                 'product_ref' => $item->product_reference,
                 'title' => $item->product_name,
                 'quantity' => $item->quantity,
                 'source' => 'FranceGems',
                 'source_ref' => "{$order->reference}-{$item->id}",
-                'price_tax_included_cents' => (int) round($item->line_total_ht * 1.2 * 100),
+                'price_tax_included_cents' => (int) round($item->line_total_ht * $vatMultiplier * 100),
                 'price_tax_included_currency' => 'EUR',
-                'tax_cents' => (int) round($item->line_total_ht * 0.2 * 100),
+                'tax_cents' => (int) round($item->line_total_ht * ($vatRate / 100) * 100),
                 'tax_currency' => 'EUR',
             ];
         }
@@ -259,8 +265,8 @@ class ShippingboService
         $orderData = [
             'source' => 'FranceGems',
             'source_ref' => $order->reference,
-            'shipping_address_id' => $shippingAddressId,
-            'billing_address_id' => $billingAddressId,
+            'shipping_address_id' => $addressId,
+            'billing_address_id' => $addressId,
             'origin' => 'FranceGems',
             'origin_ref' => $order->reference,
             'origin_created_at' => $order->created_at->toIso8601String(),
@@ -333,26 +339,38 @@ class ShippingboService
         return $result;
     }
 
+    public function getSyncStatus(): array
+    {
+        $totalProducts = \App\Models\Product::where('active', true)->count();
+        $syncedProducts = \App\Models\Product::whereNotNull('shippingbo_product_id')->count();
+        $totalOrders = \App\Models\Order::count();
+        $syncedOrders = \App\Models\Order::whereNotNull('shippingbo_order_id')->count();
+
+        return [
+            'is_connected' => ShippingboSetting::isConnected(),
+            'products' => [
+                'total' => $totalProducts,
+                'synced' => $syncedProducts,
+                'pending' => $totalProducts - $syncedProducts,
+            ],
+            'orders' => [
+                'total' => $totalOrders,
+                'synced' => $syncedOrders,
+                'pending' => $totalOrders - $syncedOrders,
+            ],
+            'webhook_url' => url('/api/shippingbo/webhook'),
+        ];
+    }
+
     public function syncAllProducts(): array
     {
         $products = \App\Models\Product::where('active', true)->get();
-        $results = ['success' => 0, 'failed' => 0, 'errors' => []];
 
         foreach ($products as $product) {
-            try {
-                $this->syncProductToShippingbo($product);
-                $results['success']++;
-            } catch (\Exception $e) {
-                $results['failed']++;
-                $results['errors'][] = [
-                    'product_id' => $product->id,
-                    'error' => $e->getMessage(),
-                ];
-                Log::error("Shippingbo product sync failed for {$product->id}: {$e->getMessage()}");
-            }
+            \App\Jobs\SyncProductToShippingbo::dispatch($product->id, 'sync_product');
         }
 
-        return $results;
+        return ['success' => $products->count(), 'failed' => 0, 'errors' => []];
     }
 
     public function handleWebhookOrderState(array $payload): void

@@ -75,6 +75,7 @@ class OrderController extends Controller
 
         return DB::transaction(function () use ($request, $user) {
             $subtotalHt = 0;
+            $totalVat = 0;
             $orderItems = [];
 
             foreach ($request->items as $item) {
@@ -95,6 +96,9 @@ class OrderController extends Controller
                 $unitPrice = $product->sale_price_ht ?? $product->price_ht;
                 $lineTotal = $unitPrice * $item['quantity'];
                 $subtotalHt += $lineTotal;
+                $vatRate = $product->vat_rate ?? 20;
+                $vatAmount = $lineTotal * ($vatRate / 100);
+                $totalVat += $vatAmount;
 
                 $orderItems[] = [
                     'product_id' => $product->id,
@@ -103,6 +107,7 @@ class OrderController extends Controller
                     'unit_price_ht' => $unitPrice,
                     'quantity' => $item['quantity'],
                     'line_total_ht' => $lineTotal,
+                    'vat_rate' => $vatRate,
                 ];
 
                 $product->decrement('stock', $item['quantity']);
@@ -152,9 +157,8 @@ class OrderController extends Controller
                 }
             }
 
-            $vatRate = 20;
-            $vatAmount = ($subtotalHt - $discountHt) * ($vatRate / 100);
             $shippingHt = $subtotalHt >= 300 ? 0 : 15;
+            $vatAmount = $subtotalHt > 0 ? $totalVat * (($subtotalHt - $discountHt) / $subtotalHt) : 0;
 
             if ($appliedDiscount && $appliedDiscount->type === 'free_shipping') {
                 $shippingHt = 0;

@@ -29,6 +29,15 @@
                     />
                 </x-filament::input.wrapper>
                 <p class="text-xs text-gray-400 dark:text-gray-500 -mt-4">L'ID de votre application dans le dashboard Shippingbo.</p>
+
+                <x-filament::input.wrapper label="Webhook Secret">
+                    <x-filament::input
+                        type="password"
+                        wire:model="data.webhook_secret"
+                        placeholder="Votre webhook_secret Shippingbo"
+                    />
+                </x-filament::input.wrapper>
+                <p class="text-xs text-gray-400 dark:text-gray-500 -mt-4">Secret partagé pour vérifier les webhooks Shippingbo (X-Signature). Optionnel si la vérification IP est suffisante.</p>
             </div>
         </div>
 
@@ -58,7 +67,7 @@
                     {{ url('/api/shippingbo/webhook') }}
                 </code>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
-                    Événements à configurer : <code>Order.state</code> (mise à jour statut commande), <code>Product.stock</code> (mise à jour stock)
+                    Événements à configurer : <code>Order.state</code> (mise à jour statut commande), <code>Product.stock</code> (mise à jour stock), <code>Shipment</code> (suivi livraison)
                 </p>
                 <p class="text-xs text-gray-500 dark:text-gray-400">
                     Rendez-vous dans votre dashboard Shippingbo → Webhooks → Add → Sélectionnez "Order" et "state", puis entrez l'URL ci-dessus.

@@ -63,6 +63,7 @@ class StripePaymentController extends Controller
 
         try {
             $subtotalHt = 0;
+            $totalVat = 0;
             $lineItems = [];
 
             foreach ($request->items as $item) {
@@ -83,6 +84,9 @@ class StripePaymentController extends Controller
                 $unitPrice = $product->sale_price_ht ?? $product->price_ht;
                 $lineTotal = $unitPrice * $item['quantity'];
                 $subtotalHt += $lineTotal;
+                $vatRate = $product->vat_rate ?? 20;
+                $vatAmount = $lineTotal * ($vatRate / 100);
+                $totalVat += $vatAmount;
 
                 $lineItems[] = [
                     'product_id' => $product->id,
@@ -91,6 +95,7 @@ class StripePaymentController extends Controller
                     'unit_price_ht' => $unitPrice,
                     'quantity' => $item['quantity'],
                     'line_total_ht' => $lineTotal,
+                    'vat_rate' => $vatRate,
                 ];
             }
 
@@ -138,8 +143,7 @@ class StripePaymentController extends Controller
                 }
             }
 
-            $vatRate = 20;
-            $vatAmount = ($subtotalHt - $discountHt) * ($vatRate / 100);
+            $vatAmount = $subtotalHt > 0 ? $totalVat * (($subtotalHt - $discountHt) / $subtotalHt) : 0;
             $shippingHt = $subtotalHt >= 300 ? 0 : 15;
 
             if ($appliedDiscount && $appliedDiscount->type === 'free_shipping') {
@@ -255,7 +259,7 @@ class StripePaymentController extends Controller
                 $invoice = $invoiceService->generateForOrder($order);
                 $invoiceService->sendInvoiceByEmail($invoice);
 
-                if ($order->shippingbo_order_id && ShippingboSetting::isConnected()) {
+                if (ShippingboSetting::isConnected()) {
                     SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
                 }
             }
@@ -324,6 +328,10 @@ class StripePaymentController extends Controller
         $invoiceService = app(InvoiceService::class);
         $invoice = $invoiceService->generateForOrder($order);
         $invoiceService->sendInvoiceByEmail($invoice);
+
+        if (ShippingboSetting::isConnected()) {
+            SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
+        }
 
         return response()->json([
             'order' => $order->load('items'),
