@@ -60,12 +60,10 @@ class ShippingboSetting extends Model
     public static function getHeaders(): array
     {
         return [
-            'Content-Type' => 'application/json',
-            'Accept' => 'application/json',
             'X-API-VERSION' => '1',
             'X-API-APP-ID' => self::get('app_id', ''),
             'Authorization' => 'Bearer ' . self::get('access_token', ''),
-            'User-Agent' => 'FranceGems/1.0',
+            'User-Agent' => 'Francegems/1.0',
         ];
     }
 }

@@ -5,19 +5,11 @@ namespace App\Jobs;
 use App\Models\Order;
 use App\Models\ShippingboSyncLog;
 use App\Services\ShippingboService;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class SyncOrderToShippingbo implements ShouldQueue
+class SyncOrderToShippingbo
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public int $tries = 3;
-    public int $backoff = 60;
+    use \Illuminate\Foundation\Bus\Dispatchable;
 
     public function __construct(
         public string $orderId,
@@ -61,7 +53,7 @@ class SyncOrderToShippingbo implements ShouldQueue
                 ['order_reference' => $order->reference],
                 [],
                 $e->getMessage(),
-                $this->attempts()
+                1
             );
 
             Log::error("Failed to {$this->action} order {$this->orderId} to Shippingbo: {$e->getMessage()}");

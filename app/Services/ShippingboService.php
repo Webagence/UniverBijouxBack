@@ -17,27 +17,52 @@ class ShippingboService
         $this->oauthUrl = ShippingboSetting::getOAuthBaseUrl();
     }
 
+    protected function normalizeCountryCode(?string $country): string
+    {
+        if (!$country) return 'FR';
+
+        $country = trim($country);
+        if (strlen($country) === 2) return strtoupper($country);
+
+        $map = [
+            'france' => 'FR', 'France' => 'FR', 'FRANCE' => 'FR',
+            'belgique' => 'BE', 'Belgique' => 'BE', 'belgium' => 'BE',
+            'suisse' => 'CH', 'Suisse' => 'CH', 'switzerland' => 'CH',
+            'madagascar' => 'MG',
+            'allemagne' => 'DE', 'germany' => 'DE',
+            'espagne' => 'ES', 'spain' => 'ES',
+            'italie' => 'IT', 'italy' => 'IT',
+            'pays-bas' => 'NL', 'netherlands' => 'NL',
+            'portugal' => 'PT',
+            'royaume-uni' => 'GB', 'angleterre' => 'GB', 'england' => 'GB', 'united kingdom' => 'GB',
+            'luxembourg' => 'LU',
+            'monaco' => 'MC',
+            'etats-unis' => 'US', 'états-unis' => 'US', 'united states' => 'US',
+            'canada' => 'CA',
+        ];
+
+        return $map[$country] ?? $map[strtolower($country)] ?? 'FR';
+    }
+
     // ==================== OAuth ====================
 
-    public function getAuthorizationUrl(string $redirectUri): string
+    public function getAuthorizationUrl(string $redirectUri, array $scopes = ['order']): string
     {
         $clientId = ShippingboSetting::get('client_id');
-        $scopes = urlencode('orders products addresses shipments');
 
-        return "{$this->oauthUrl}/oauth/authorize?"
-            . "response_type=code&"
-            . "client_id={$clientId}&"
-            . "redirect_uri=" . urlencode($redirectUri) . "&"
-            . "scope={$scopes}";
+        $params = http_build_query([
+            'response_type' => 'code',
+            'client_id' => $clientId,
+            'redirect_uri' => $redirectUri,
+            'scope' => implode(' ', $scopes),
+        ], '', '&', PHP_QUERY_RFC3986);
+
+        return "{$this->oauthUrl}/oauth/authorize?{$params}";
     }
 
     public function getAccessToken(string $code, string $redirectUri): array
     {
-        $response = Http::asJson()
-            ->withHeaders([
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-            ])
+        $response = Http::timeout(10)->asJson()
             ->post("{$this->oauthUrl}/oauth/token", [
                 'grant_type' => 'authorization_code',
                 'client_id' => ShippingboSetting::get('client_id'),
@@ -67,17 +92,12 @@ class ShippingboService
             throw new \Exception('No refresh token available');
         }
 
-        $response = Http::asJson()
-            ->withHeaders([
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-            ])
+        $response = Http::timeout(10)->asJson()
             ->post("{$this->oauthUrl}/oauth/token", [
                 'grant_type' => 'refresh_token',
                 'client_id' => ShippingboSetting::get('client_id'),
                 'client_secret' => ShippingboSetting::get('client_secret'),
                 'refresh_token' => $refreshToken,
-                'redirect_uri' => url('/api/shippingbo/callback'),
             ]);
 
         if ($response->failed()) {
@@ -110,7 +130,7 @@ class ShippingboService
 
         $url = "{$this->baseUrl}/{$endpoint}";
 
-        $response = Http::withHeaders(ShippingboSetting::getHeaders())
+        $response = Http::timeout(10)->retry(2, 1000)->asJson()->withHeaders(ShippingboSetting::getHeaders())
             ->{$method}($url, $data);
 
         if ($response->failed()) {
@@ -236,7 +256,7 @@ class ShippingboService
             'street2' => $order->shipping_address['address_line2'] ?? null,
             'zip' => $order->shipping_address['postal_code'] ?? '',
             'city' => $order->shipping_address['city'] ?? '',
-            'country' => $order->shipping_address['country'] ?? 'FR',
+            'country' => $this->normalizeCountryCode($order->shipping_address['country'] ?? 'FR'),
             'phone1' => $order->shipping_address['phone'] ?? null,
             'email' => $order->user->email ?? '',
             'company_name' => $order->user->company_name ?? null,
@@ -253,7 +273,7 @@ class ShippingboService
                 'product_ref' => $item->product_reference,
                 'title' => $item->product_name,
                 'quantity' => $item->quantity,
-                'source' => 'FranceGems',
+                'source' => 'Francegems',
                 'source_ref' => "{$order->reference}-{$item->id}",
                 'price_tax_included_cents' => (int) round($item->line_total_ht * $vatMultiplier * 100),
                 'price_tax_included_currency' => 'EUR',
@@ -263,11 +283,11 @@ class ShippingboService
         }
 
         $orderData = [
-            'source' => 'FranceGems',
+            'source' => 'Francegems',
             'source_ref' => $order->reference,
             'shipping_address_id' => $addressId,
             'billing_address_id' => $addressId,
-            'origin' => 'FranceGems',
+            'origin' => 'Francegems',
             'origin_ref' => $order->reference,
             'origin_created_at' => $order->created_at->toIso8601String(),
             'total_price_cents' => (int) round($order->total_ttc * 100),

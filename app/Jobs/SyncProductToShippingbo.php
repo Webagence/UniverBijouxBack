@@ -5,19 +5,11 @@ namespace App\Jobs;
 use App\Models\Product;
 use App\Models\ShippingboSyncLog;
 use App\Services\ShippingboService;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class SyncProductToShippingbo implements ShouldQueue
+class SyncProductToShippingbo
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
-    public int $tries = 3;
-    public int $backoff = 30;
+    use \Illuminate\Foundation\Bus\Dispatchable;
 
     public function __construct(
         public string $productId,
@@ -62,7 +54,7 @@ class SyncProductToShippingbo implements ShouldQueue
                 ['product_reference' => $product->reference],
                 [],
                 $e->getMessage(),
-                $this->attempts()
+                1
             );
 
             Log::error("Failed to {$this->action} product {$this->productId} to Shippingbo: {$e->getMessage()}");
