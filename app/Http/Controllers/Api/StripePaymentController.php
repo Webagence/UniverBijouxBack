@@ -197,10 +197,6 @@ class StripePaymentController extends Controller
                 $appliedDiscount->incrementUsage();
             }
 
-            if (ShippingboSetting::isConnected()) {
-                SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
-            }
-
             return response()->json([
                 'clientSecret' => $paymentIntent->client_secret,
                 'orderId' => $order->id,
@@ -260,7 +256,7 @@ class StripePaymentController extends Controller
                 $invoiceService->sendInvoiceByEmail($invoice);
 
                 if (ShippingboSetting::isConnected()) {
-                    SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
+                    SyncOrderToShippingbo::dispatch($order->id, 'sync_order');
                 }
             }
         }
@@ -330,7 +326,7 @@ class StripePaymentController extends Controller
         $invoiceService->sendInvoiceByEmail($invoice);
 
         if (ShippingboSetting::isConnected()) {
-            SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
+            SyncOrderToShippingbo::dispatch($order->id, 'sync_order');
         }
 
         return response()->json([

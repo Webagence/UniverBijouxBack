@@ -196,10 +196,6 @@ class OrderController extends Controller
                 $appliedDiscount->incrementUsage();
             }
 
-            if (ShippingboSetting::isConnected()) {
-                SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
-            }
-
             return response()->json([
                 'message' => 'Order created successfully',
                 'order' => $order->load(['items', 'orderDiscounts']),
@@ -226,7 +222,7 @@ class OrderController extends Controller
         $order->update(['status' => Order::STATUS_CANCELLED]);
 
         if ($order->shippingbo_order_id && ShippingboSetting::isConnected()) {
-            SyncOrderToShippingbo::dispatch($order->id, 'cancel_order')->onQueue('shippingbo');
+            SyncOrderToShippingbo::dispatch($order->id, 'cancel_order');
         }
 
         return response()->json([

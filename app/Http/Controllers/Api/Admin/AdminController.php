@@ -69,7 +69,7 @@ class AdminController extends Controller
         $order->update(['status' => $request->status]);
 
         if (ShippingboSetting::isConnected() && $order->shippingbo_order_id) {
-            SyncOrderToShippingbo::dispatch($order->id, 'sync_order')->onQueue('shippingbo');
+            SyncOrderToShippingbo::dispatch($order->id, 'sync_order');
         }
 
         return response()->json(['message' => 'Order status updated', 'order' => $order]);
@@ -112,7 +112,7 @@ class AdminController extends Controller
         $product = Product::create($request->all());
 
         if (ShippingboSetting::isConnected()) {
-            SyncProductToShippingbo::dispatch($product->id, 'sync_product')->onQueue('shippingbo');
+            SyncProductToShippingbo::dispatch($product->id, 'sync_product');
         }
 
         return response()->json(['product' => $product], 201);
@@ -124,7 +124,7 @@ class AdminController extends Controller
         $product->update($request->all());
 
         if (ShippingboSetting::isConnected() && $product->shippingbo_product_id) {
-            SyncProductToShippingbo::dispatch($product->id, 'update_product')->onQueue('shippingbo');
+            SyncProductToShippingbo::dispatch($product->id, 'update_product');
         }
 
         return response()->json(['product' => $product]);
