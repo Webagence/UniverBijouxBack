@@ -393,6 +393,58 @@ class ShippingboService
         return ['success' => $products->count(), 'failed' => 0, 'errors' => []];
     }
 
+    public function pollOrderStatuses(): array
+    {
+        $orders = \App\Models\Order::whereNotNull('shippingbo_order_id')
+            ->whereNotIn('status', [
+                \App\Models\Order::STATUS_DELIVERED,
+                \App\Models\Order::STATUS_CANCELLED,
+            ])
+            ->get();
+
+        $updated = 0;
+        $errors = 0;
+
+        foreach ($orders as $order) {
+            try {
+                $remote = $this->getOrder($order->shippingbo_order_id);
+                $state = $remote['order']['state'] ?? null;
+
+                if (!$state) continue;
+
+                $statusMap = [
+                    'new' => \App\Models\Order::STATUS_PENDING,
+                    'in_progress' => \App\Models\Order::STATUS_PREPARING,
+                    'shipped' => \App\Models\Order::STATUS_SHIPPED,
+                    'delivered' => \App\Models\Order::STATUS_DELIVERED,
+                    'cancelled' => \App\Models\Order::STATUS_CANCELLED,
+                ];
+
+                $newStatus = $statusMap[$state] ?? null;
+
+                if ($newStatus && $newStatus !== $order->status) {
+                    $updateData = ['status' => $newStatus];
+
+                    $shipments = $remote['order']['shipments'] ?? [];
+                    if (!empty($shipments)) {
+                        $updateData['tracking_number'] = $shipments[0]['shipping_ref'] ?? null;
+                        $updateData['carrier'] = $shipments[0]['carrier_name'] ?? null;
+                    }
+
+                    $order->update($updateData);
+                    $updated++;
+
+                    Log::info("Shippingbo poll: Order {$order->reference} status updated to {$newStatus}");
+                }
+            } catch (\Exception $e) {
+                $errors++;
+                Log::warning("Shippingbo poll: failed to check order {$order->reference}: {$e->getMessage()}");
+            }
+        }
+
+        return ['checked' => $orders->count(), 'updated' => $updated, 'errors' => $errors];
+    }
+
     public function handleWebhookOrderState(array $payload): void
     {
         $shippingboOrderId = $payload['object']['id'] ?? null;
