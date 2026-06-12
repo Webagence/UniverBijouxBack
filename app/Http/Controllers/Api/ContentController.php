@@ -179,6 +179,9 @@ class ContentController extends Controller
             }
         }
 
+        $firstCarrier = \App\Models\ShippingCarrier::active()->first();
+        $flat['defaultShippingPrice'] = $firstCarrier ? (float) $firstCarrier->price : 15;
+
         $flat['_locale'] = $locale;
 
         return response()->json(['settings' => $flat]);

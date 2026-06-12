@@ -20,6 +20,9 @@ Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 });
 
+// Public carriers
+Route::get('/carriers', [App\Http\Controllers\Api\CarrierController::class, 'index']);
+
 // Public content routes
 Route::prefix('content')->group(function () {
     Route::get('/hero', [ContentController::class, 'hero']);

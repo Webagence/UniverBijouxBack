@@ -224,6 +224,50 @@ class ShippingboService
         return $this->request('post', 'product_barcodes', $barcodeData);
     }
 
+    // ==================== Carriers & Shipping Methods ====================
+
+    public function listCarriers(): array
+    {
+        return $this->request('get', 'carriers');
+    }
+
+    public function listShippingMethods(): array
+    {
+        return $this->request('get', 'shipping_methods');
+    }
+
+    public function syncShippingMethodsFromShippingbo(): array
+    {
+        $methods = $this->listShippingMethods();
+        $carriers = $this->listCarriers();
+        $carrierMap = collect($carriers['carriers'] ?? [])->keyBy('id');
+
+        $synced = 0;
+        foreach ($methods['shipping_methods'] ?? [] as $method) {
+            $name = $method['name'];
+            $carrierId = $method['carrier_id'];
+            $carrierName = $carrierMap->get($carrierId)['name'] ?? null;
+
+            // Check if already exists by shippingbo_method_id
+            $existing = \App\Models\ShippingCarrier::where('shippingbo_method_id', $method['id'])->first();
+            if (!$existing) {
+                // Only create if no carrier with this name exists yet
+                \App\Models\ShippingCarrier::firstOrCreate(
+                    ['name' => $name],
+                    [
+                        'shippingbo_method_id' => $method['id'],
+                        'carrier_name' => $carrierName,
+                        'is_active' => false,
+                        'sort_order' => $synced + 1,
+                    ]
+                );
+                $synced++;
+            }
+        }
+
+        return ['synced' => $synced, 'total' => count($methods['shipping_methods'] ?? [])];
+    }
+
     // ==================== Shipments ====================
 
     public function listShipments(array $params = []): array
@@ -282,6 +326,14 @@ class ShippingboService
             ];
         }
 
+        $carrierName = null;
+        if ($order->carrier) {
+            $carrier = \App\Models\ShippingCarrier::where('id', $order->carrier)
+                ->orWhere('name', $order->carrier)
+                ->first();
+            $carrierName = $carrier?->name ?? $order->carrier;
+        }
+
         $orderData = [
             'source' => 'Francegems',
             'source_ref' => $order->reference,
@@ -295,6 +347,7 @@ class ShippingboService
             'total_tax_cents' => (int) round($order->vat_amount * 100),
             'total_shipping_tax_included_cents' => (int) round($order->shipping_ht * 1.2 * 100),
             'total_shipping_tax_cents' => (int) round($order->shipping_ht * 100),
+            'chosen_delivery_service' => $carrierName,
             'order_items_attributes' => $orderItems,
         ];
 

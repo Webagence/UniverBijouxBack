@@ -143,12 +143,8 @@ class StripePaymentController extends Controller
                 }
             }
 
+            $shippingHt = \App\Models\ShippingCarrier::calculateShipping($request->carrier, $subtotalHt, $appliedDiscount);
             $vatAmount = $subtotalHt > 0 ? $totalVat * (($subtotalHt - $discountHt) / $subtotalHt) : 0;
-            $shippingHt = $subtotalHt >= 300 ? 0 : 15;
-
-            if ($appliedDiscount && $appliedDiscount->type === 'free_shipping') {
-                $shippingHt = 0;
-            }
 
             $totalTtc = ($subtotalHt - $discountHt) + $vatAmount + $shippingHt;
 
