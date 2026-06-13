@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\AdminController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CatalogController;
 use App\Http\Controllers\Api\ContentController;
 use App\Http\Controllers\Api\DiscountController;
 use App\Http\Controllers\Api\OrderController;
@@ -98,6 +99,12 @@ Route::prefix('translations')->group(function () {
     Route::middleware('approved')->prefix('stripe')->group(function () {
         Route::post('/create-payment-intent', [StripePaymentController::class, 'createPaymentIntent']);
         Route::post('/confirm', [StripePaymentController::class, 'confirmPayment']);
+    });
+
+    // Catalog (require approved account)
+    Route::middleware('approved')->prefix('catalog')->group(function () {
+        Route::get('/export', [CatalogController::class, 'export']);
+        Route::post('/import', [CatalogController::class, 'import']);
     });
 
     // Tickets
