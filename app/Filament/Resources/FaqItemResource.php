@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\FaqItemResource\Pages;
 use App\Filament\Resources\FaqItemResource\RelationManagers;
 use App\Models\FaqItem;
+use App\Models\Site;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -27,6 +28,11 @@ class FaqItemResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('site_id')
+                    ->label('Site')
+                    ->options(Site::pluck('name', 'id'))
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\TextInput::make('question')
                     ->required(),
                 Forms\Components\Textarea::make('answer')
@@ -47,9 +53,10 @@ class FaqItemResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('site.name')
+                    ->label('Site')
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('question')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('category')
@@ -69,7 +76,9 @@ class FaqItemResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('site_id')
+                    ->label('Site')
+                    ->relationship('site', 'name'),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),

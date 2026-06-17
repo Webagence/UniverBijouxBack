@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\TestimonialResource\Pages;
 use App\Filament\Resources\TestimonialResource\RelationManagers;
+use App\Models\Site;
 use App\Models\Testimonial;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -30,6 +31,11 @@ class TestimonialResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('site_id')
+                    ->label('Site')
+                    ->options(Site::pluck('name', 'id'))
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\TextInput::make('author')
                     ->required(),
                 Forms\Components\TextInput::make('role'),
@@ -54,9 +60,10 @@ class TestimonialResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('site.name')
+                    ->label('Site')
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('author')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('role')
@@ -91,6 +98,9 @@ class TestimonialResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('site_id')
+                    ->label('Site')
+                    ->relationship('site', 'name'),
                 SelectFilter::make('active')
                     ->label('Statut')
                     ->options([
