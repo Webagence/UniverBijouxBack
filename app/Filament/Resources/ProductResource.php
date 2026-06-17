@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ProductResource\Pages;
 use App\Models\Product;
+use App\Models\Site;
 use App\Models\Universe;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -30,6 +31,11 @@ class ProductResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informations principales')
                     ->schema([
+                        Forms\Components\Select::make('site_id')
+                            ->label('Site')
+                            ->options(Site::pluck('name', 'id'))
+                            ->searchable()
+                            ->preload(),
                         Forms\Components\TextInput::make('name')
                             ->required()
                             ->live(onBlur: true)
@@ -168,6 +174,10 @@ class ProductResource extends Resource
                     ->label('Image')
                     ->circular()
                     ->size(50),
+                Tables\Columns\TextColumn::make('site.name')
+                    ->label('Site')
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->searchable()
                     ->sortable()
@@ -207,6 +217,9 @@ class ProductResource extends Resource
                     ->boolean(),
             ])
             ->filters([
+                Tables\Filters\SelectFilter::make('site_id')
+                    ->label('Site')
+                    ->relationship('site', 'name'),
                 Tables\Filters\SelectFilter::make('universe_id')
                     ->label('Univers')
                     ->relationship('universe', 'name'),

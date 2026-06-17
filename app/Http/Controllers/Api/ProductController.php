@@ -17,10 +17,20 @@ class ProductController extends Controller
         protected TranslationService $translationService
     ) {}
 
+    protected function getSiteId(Request $request): ?string
+    {
+        $site = $request->attributes->get('site');
+        return $site?->id;
+    }
+
     public function index(Request $request): JsonResponse
     {
         $locale = App::getLocale();
         $query = Product::query()->active()->with('universe');
+
+        if ($siteId = $this->getSiteId($request)) {
+            $query->bySite($siteId);
+        }
 
         if ($request->has('universe')) {
             $query->byUniverse($request->universe);
@@ -46,24 +56,31 @@ class ProductController extends Controller
         return response()->json($products);
     }
 
-    public function show(string $slug): JsonResponse
+    public function show(Request $request, string $slug): JsonResponse
     {
         $locale = App::getLocale();
-        $product = Product::where('slug', $slug)
+        $query = Product::where('slug', $slug)
             ->orWhereJsonContains('slugs', $slug)
             ->active()
-            ->with('universe')
-            ->firstOrFail();
+            ->with('universe');
+
+        if ($siteId = $this->getSiteId($request)) {
+            $query->bySite($siteId);
+        }
+
+        $product = $query->firstOrFail();
 
         return response()->json(['product' => $this->formatProduct($product, $locale)]);
     }
 
-    public function universes(): JsonResponse
+    public function universes(Request $request): JsonResponse
     {
         $locale = App::getLocale();
-        $universes = Universe::withCount(['products' => function ($query) {
-            $query->where('active', true);
-        }])
+        $siteId = $this->getSiteId($request);
+        $universes = Universe::when($siteId, fn($q) => $q->bySite($siteId))
+            ->withCount(['products' => function ($query) {
+                $query->where('active', true);
+            }])
             ->orderBy('display_order')
             ->get()
             ->map(function ($u) use ($locale) {
@@ -81,6 +98,7 @@ class ProductController extends Controller
         $products = Product::active()
             ->new()
             ->with('universe')
+            ->when($siteId = $this->getSiteId($request), fn($q) => $q->bySite($siteId))
             ->orderBy('created_at', 'desc')
             ->limit($limit)
             ->get()
@@ -97,6 +115,7 @@ class ProductController extends Controller
         $products = Product::active()
             ->where('tag', 'Best-seller')
             ->with('universe')
+            ->when($siteId = $this->getSiteId($request), fn($q) => $q->bySite($siteId))
             ->limit($limit)
             ->get()
             ->map(fn($p) => $this->formatProduct($p, $locale));

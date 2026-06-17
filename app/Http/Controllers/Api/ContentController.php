@@ -44,7 +44,9 @@ class ContentController extends Controller
     private function getLocaleData(string $contentKey): array
     {
         $locale = App::getLocale();
-        $contentBlock = ContentBlock::getByKey($contentKey);
+        $site = request()->attributes->get('site');
+        $siteId = $site?->id;
+        $contentBlock = ContentBlock::getByKey($contentKey, $siteId);
 
         if (!$contentBlock) {
             return [];
@@ -83,7 +85,10 @@ class ContentController extends Controller
     public function testimonials(): JsonResponse
     {
         $locale = App::getLocale();
-        $testimonials = Testimonial::active()->ordered()->get()->map(function ($testimonial) use ($locale) {
+        $site = request()->attributes->get('site');
+        $testimonials = Testimonial::active()
+            ->when($site, fn($q) => $q->bySite($site->id))
+            ->ordered()->get()->map(function ($testimonial) use ($locale) {
             $data = $testimonial->toArray();
             $translations = $this->translationService->getTranslationsForModel($testimonial, $locale);
 
@@ -107,7 +112,10 @@ class ContentController extends Controller
         $user = $request->user();
         $companyName = $user->profile?->company_name ?? $user->name;
 
+        $site = request()->attributes->get('site');
+
         $testimonial = Testimonial::create([
+            'site_id' => $site?->id,
             'author' => $user->name,
             'role' => 'Revendeur partenaire',
             'shop' => $companyName,
@@ -143,7 +151,10 @@ class ContentController extends Controller
     public function faq(Request $request): JsonResponse
     {
         $locale = App::getLocale();
-        $query = FaqItem::active()->ordered();
+        $site = request()->attributes->get('site');
+        $query = FaqItem::active()
+            ->when($site, fn($q) => $q->bySite($site->id))
+            ->ordered();
 
         if ($request->has('category')) {
             $query->byCategory($request->category);

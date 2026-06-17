@@ -12,6 +12,7 @@ class Testimonial extends Model
     use HasFactory, HasUuids, Translatable;
 
     protected $fillable = [
+        'site_id',
         'author',
         'role',
         'shop',
@@ -33,6 +34,11 @@ class Testimonial extends Model
         ];
     }
 
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
+    }
+
     public function submittedBy()
     {
         return $this->belongsTo(User::class, 'submitted_by');
@@ -51,5 +57,10 @@ class Testimonial extends Model
     public function scopePending($query)
     {
         return $query->where('active', false);
+    }
+
+    public function scopeBySite($query, $siteId)
+    {
+        return $query->where('site_id', $siteId);
     }
 }

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\ContentBlock;
 use App\Models\FaqItem;
+use App\Models\Site;
 use App\Models\SiteSetting;
 use App\Models\Testimonial;
 use Illuminate\Database\Seeder;
@@ -12,7 +13,10 @@ class ContentSeeder extends Seeder
 {
     public function run(): void
     {
+        $bijoux = Site::where('slug', 'bijoux')->firstOrFail();
+
         ContentBlock::create([
+            'site_id' => $bijoux->id,
             'key' => 'hero',
             'data' => [
                 'eyebrow' => 'Grossiste bijoux · Collection Printemps 2026',
@@ -31,6 +35,7 @@ class ContentSeeder extends Seeder
         ]);
 
         ContentBlock::create([
+            'site_id' => $bijoux->id,
             'key' => 'atelier',
             'data' => [
                 'eyebrow' => 'Notre atelier',
@@ -44,6 +49,7 @@ class ContentSeeder extends Seeder
         ]);
 
         Testimonial::create([
+            'site_id' => $bijoux->id,
             'author' => 'Camille L.',
             'shop' => 'Concept-store Ondine · Lyon',
             'quote' => 'Un catalogue qui se vend tout seul. Mes clientes reviennent pour les nouveautés Maison Lune chaque saison.',
@@ -53,6 +59,7 @@ class ContentSeeder extends Seeder
         ]);
 
         Testimonial::create([
+            'site_id' => $bijoux->id,
             'author' => 'Marie D.',
             'shop' => 'Boutique Écrin · Bordeaux',
             'quote' => 'Qualité irréprochable, SAV réactif et les réassorts arrivent toujours en 48h. Un vrai partenaire.',
@@ -62,6 +69,7 @@ class ContentSeeder extends Seeder
         ]);
 
         Testimonial::create([
+            'site_id' => $bijoux->id,
             'author' => 'Léa M.',
             'shop' => 'Institut Belle Étoile · Paris',
             'quote' => 'Les marges sont confortables et les pièces sont vraiment différenciantes. Indispensable en boutique.',
@@ -83,6 +91,7 @@ class ContentSeeder extends Seeder
 
         foreach ($faqs as $faq) {
             FaqItem::create([
+                'site_id' => $bijoux->id,
                 'question' => $faq['question'],
                 'answer' => $faq['answer'],
                 'category' => $faq['category'],

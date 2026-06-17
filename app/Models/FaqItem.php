@@ -12,6 +12,7 @@ class FaqItem extends Model
     use HasFactory, HasUuids, Translatable;
 
     protected $fillable = [
+        'site_id',
         'question',
         'answer',
         'category',
@@ -28,6 +29,11 @@ class FaqItem extends Model
         ];
     }
 
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('active', true);
@@ -41,5 +47,10 @@ class FaqItem extends Model
     public function scopeByCategory($query, $category)
     {
         return $query->where('category', $category);
+    }
+
+    public function scopeBySite($query, $siteId)
+    {
+        return $query->where('site_id', $siteId);
     }
 }

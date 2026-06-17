@@ -14,6 +14,7 @@ class Product extends Model
     use HasFactory, HasUuids, Translatable;
 
     protected $fillable = [
+        'site_id',
         'slug',
         'slugs',
         'name',
@@ -99,9 +100,19 @@ class Product extends Model
         return $this->belongsTo(Universe::class);
     }
 
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
+    }
+
     public function orderItems()
     {
         return $this->hasMany(OrderItem::class);
+    }
+
+    public function scopeBySite($query, $siteId)
+    {
+        return $query->where('site_id', $siteId);
     }
 
     public function getPriceTtcAttribute(): string

@@ -13,6 +13,7 @@ class Universe extends Model
     use HasFactory, HasUuids, Translatable;
 
     protected $fillable = [
+        'site_id',
         'slug',
         'slugs',
         'name',
@@ -31,6 +32,16 @@ class Universe extends Model
     public function products()
     {
         return $this->hasMany(Product::class);
+    }
+
+    public function site()
+    {
+        return $this->belongsTo(Site::class);
+    }
+
+    public function scopeBySite($query, $siteId)
+    {
+        return $query->where('site_id', $siteId);
     }
 
     public function getProductsCountAttribute(): int

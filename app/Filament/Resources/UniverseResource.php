@@ -3,6 +3,7 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\UniverseResource\Pages;
+use App\Models\Site;
 use App\Models\Universe;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -27,6 +28,11 @@ class UniverseResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Informations')
                     ->schema([
+                        Forms\Components\Select::make('site_id')
+                            ->label('Site')
+                            ->options(Site::pluck('name', 'id'))
+                            ->searchable()
+                            ->preload(),
                         Forms\Components\TextInput::make('name')
                             ->label('Nom')
                             ->required()
@@ -73,6 +79,10 @@ class UniverseResource extends Resource
                     ->label('Image')
                     ->circular()
                     ->size(50),
+                Tables\Columns\TextColumn::make('site.name')
+                    ->label('Site')
+                    ->badge()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('name')
                     ->label('Nom')
                     ->searchable()
@@ -89,7 +99,11 @@ class UniverseResource extends Resource
                     ->label('Ordre')
                     ->sortable(),
             ])
-            ->filters([])
+            ->filters([
+                Tables\Filters\SelectFilter::make('site_id')
+                    ->label('Site')
+                    ->relationship('site', 'name'),
+            ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

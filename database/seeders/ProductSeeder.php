@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Product;
+use App\Models\Site;
 use App\Models\Universe;
 use Illuminate\Database\Seeder;
 
@@ -10,6 +11,7 @@ class ProductSeeder extends Seeder
 {
     public function run(): void
     {
+        $bijoux = Site::where('slug', 'bijoux')->firstOrFail();
         $colliers = Universe::where('slug', 'colliers')->first();
         $boucles = Universe::where('slug', 'boucles')->first();
         $bagues = Universe::where('slug', 'bagues')->first();
@@ -48,6 +50,7 @@ class ProductSeeder extends Seeder
         foreach ($products as $data) {
             $universeSlug = Universe::find($data['universe_id'])?->slug ?? 'colliers';
             Product::create([
+                'site_id' => $bijoux->id,
                 'name' => $data['name'],
                 'universe_id' => $data['universe_id'],
                 'price_ht' => $data['price_ht'],

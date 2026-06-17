@@ -11,6 +11,7 @@ class ContentBlock extends Model
     use HasFactory, Translatable;
 
     protected $fillable = [
+        'site_id',
         'key',
         'data',
     ];
@@ -22,9 +23,23 @@ class ContentBlock extends Model
         ];
     }
 
-    public static function getByKey(string $key): ?self
+    public function site()
     {
-        return static::where('key', $key)->first();
+        return $this->belongsTo(Site::class);
+    }
+
+    public function scopeBySite($query, $siteId)
+    {
+        return $query->where('site_id', $siteId);
+    }
+
+    public static function getByKey(string $key, ?string $siteId = null): ?self
+    {
+        $q = static::where('key', $key);
+        if ($siteId) {
+            $q->where('site_id', $siteId);
+        }
+        return $q->first();
     }
 
     public function getDataAttribute(mixed $value): array

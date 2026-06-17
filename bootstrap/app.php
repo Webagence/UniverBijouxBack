@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->api(prepend: [
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\DetectSite::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

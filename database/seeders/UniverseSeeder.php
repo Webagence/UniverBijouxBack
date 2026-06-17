@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Site;
 use App\Models\Universe;
 use Illuminate\Database\Seeder;
 
@@ -9,7 +10,10 @@ class UniverseSeeder extends Seeder
 {
     public function run(): void
     {
+        $bijoux = Site::where('slug', 'bijoux')->firstOrFail();
+
         Universe::create([
+            'site_id' => $bijoux->id,
             'slug' => 'colliers',
             'name' => 'Colliers',
             'description' => 'Collection de colliers délicats fabriqués à la main',
@@ -18,6 +22,7 @@ class UniverseSeeder extends Seeder
         ]);
 
         Universe::create([
+            'site_id' => $bijoux->id,
             'slug' => 'boucles',
             'name' => 'Boucles d\'oreilles',
             'description' => 'Boucles d\'oreilles élégantes pour toutes les occasions',
@@ -26,6 +31,7 @@ class UniverseSeeder extends Seeder
         ]);
 
         Universe::create([
+            'site_id' => $bijoux->id,
             'slug' => 'bagues',
             'name' => 'Bagues',
             'description' => 'Bagues signature en or recyclé et pierres éthiques',
@@ -34,6 +40,7 @@ class UniverseSeeder extends Seeder
         ]);
 
         Universe::create([
+            'site_id' => $bijoux->id,
             'slug' => 'bracelets',
             'name' => 'Bracelets',
             'description' => 'Bracelets raffinés pour sublimer le poignet',
