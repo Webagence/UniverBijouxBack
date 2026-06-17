@@ -72,7 +72,9 @@ class ManageShippingbo extends Page
 
         try {
             $service = app(ShippingboService::class);
-            $this->authorizationUrl = $service->getAuthorizationUrl(url('/api/shippingbo/callback'));
+            $this->authorizationUrl = $service->getAuthorizationUrl(url('/api/shippingbo/callback'), [
+                'orders', 'products', 'addresses', 'shipments'
+            ]);
 
             Notification::make()
                 ->title('Redirection vers Shippingbo pour autorisation')

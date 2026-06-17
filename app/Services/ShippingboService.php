@@ -236,36 +236,63 @@ class ShippingboService
         return $this->request('get', 'shipping_methods');
     }
 
-    public function syncShippingMethodsFromShippingbo(): array
+    public function syncShippingMethodsFromShippingbo(array $carrierConfig = []): array
     {
         $methods = $this->listShippingMethods();
         $carriers = $this->listCarriers();
         $carrierMap = collect($carriers['carriers'] ?? [])->keyBy('id');
 
         $synced = 0;
+        $updated = 0;
         foreach ($methods['shipping_methods'] ?? [] as $method) {
             $name = $method['name'];
             $carrierId = $method['carrier_id'];
             $carrierName = $carrierMap->get($carrierId)['name'] ?? null;
 
-            // Check if already exists by shippingbo_method_id
-            $existing = \App\Models\ShippingCarrier::where('shippingbo_method_id', $method['id'])->first();
-            if (!$existing) {
-                // Only create if no carrier with this name exists yet
-                \App\Models\ShippingCarrier::firstOrCreate(
+            $defaults = [
+                'shippingbo_method_id' => $method['id'],
+                'carrier_name' => $carrierName,
+                'is_active' => false,
+                'sort_order' => $synced + 1,
+            ];
+
+            // Find or create the carrier record
+            $record = \App\Models\ShippingCarrier::where('shippingbo_method_id', $method['id'])->first();
+
+            if (!$record) {
+                $record = \App\Models\ShippingCarrier::firstOrCreate(
                     ['name' => $name],
-                    [
-                        'shippingbo_method_id' => $method['id'],
-                        'carrier_name' => $carrierName,
-                        'is_active' => false,
-                        'sort_order' => $synced + 1,
-                    ]
+                    $defaults
                 );
                 $synced++;
             }
+
+            // Apply carrier-specific config (price, active status)
+            if ($carrierName && isset($carrierConfig[$carrierName])) {
+                $config = $carrierConfig[$carrierName];
+                $changed = false;
+
+                if (isset($config['is_active']) && $record->is_active !== $config['is_active']) {
+                    $record->is_active = $config['is_active'];
+                    $changed = true;
+                }
+                if (isset($config['price']) && (float) $record->price !== (float) $config['price']) {
+                    $record->price = $config['price'];
+                    $changed = true;
+                }
+
+                if ($changed) {
+                    $record->save();
+                    $updated++;
+                }
+            }
         }
 
-        return ['synced' => $synced, 'total' => count($methods['shipping_methods'] ?? [])];
+        return [
+            'synced' => $synced,
+            'updated' => $updated,
+            'total' => count($methods['shipping_methods'] ?? []),
+        ];
     }
 
     // ==================== Shipments ====================
