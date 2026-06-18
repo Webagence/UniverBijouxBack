@@ -1,4 +1,20 @@
 <x-filament-panels::page>
+    {{-- Site Selector --}}
+    <x-filament::section>
+        <div class="flex items-center gap-4">
+            <label class="text-sm font-medium whitespace-nowrap">Site :</label>
+            <select
+                wire:model.live="selectedSiteId"
+                class="block w-full max-w-xs rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-primary-500 focus:ring-1 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200"
+            >
+                @foreach($sites as $site)
+                    <option value="{{ $site['id'] }}">{{ $site['name'] }}</option>
+                @endforeach
+            </select>
+            <span class="text-xs text-gray-500">Changer de site pour gérer son contenu spécifique</span>
+        </div>
+    </x-filament::section>
+
     {{-- Hero Section --}}
     <x-filament::section heading="Section Hero (Page d'accueil)" description="Contenu de la bannière principale">
         {{-- Hero Image Upload --}}

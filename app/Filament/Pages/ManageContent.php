@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\ContentBlock;
+use App\Models\Site;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Storage;
@@ -21,6 +22,10 @@ class ManageContent extends Page
     protected static ?int $navigationSort = 1;
 
     protected static string $view = 'filament.pages.manage-content';
+
+    public ?string $selectedSiteId = null;
+
+    public array $sites = [];
 
     public ?array $heroData = [];
 
@@ -52,42 +57,52 @@ class ManageContent extends Page
 
     public function mount(): void
     {
+        $this->sites = Site::active()->get(['id', 'name'])->toArray();
+        $firstSite = Site::active()->first();
+        $this->selectedSiteId = $firstSite?->id;
+        $this->loadContent();
+    }
+
+    public function updatedSelectedSiteId(): void
+    {
         $this->loadContent();
     }
 
     protected function loadContent(): void
     {
-        $heroBlock = ContentBlock::where('key', 'hero')->first();
+        $siteId = $this->selectedSiteId;
+
+        $heroBlock = ContentBlock::where('key', 'hero')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->heroData = $heroBlock?->data ?? [];
         $this->heroImage = $this->heroData['image'] ?? null;
 
-        $atelierBlock = ContentBlock::where('key', 'atelier')->first();
+        $atelierBlock = ContentBlock::where('key', 'atelier')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->atelierData = $atelierBlock?->data ?? [];
         $this->atelierImage = $this->atelierData['image'] ?? null;
 
-        $promisesBlock = ContentBlock::where('key', 'promises')->first();
+        $promisesBlock = ContentBlock::where('key', 'promises')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->promisesData = $promisesBlock?->data ?? [];
 
-        $categoriesBlock = ContentBlock::where('key', 'categories_section')->first();
+        $categoriesBlock = ContentBlock::where('key', 'categories_section')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->categoriesSectionData = $categoriesBlock?->data ?? [];
 
-        $productGridBlock = ContentBlock::where('key', 'product_grid_section')->first();
+        $productGridBlock = ContentBlock::where('key', 'product_grid_section')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->productGridSectionData = $productGridBlock?->data ?? [];
 
-        $newByUniverseBlock = ContentBlock::where('key', 'new_by_universe_section')->first();
+        $newByUniverseBlock = ContentBlock::where('key', 'new_by_universe_section')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->newByUniverseSectionData = $newByUniverseBlock?->data ?? [];
 
-        $testimonialsSectionBlock = ContentBlock::where('key', 'testimonials_section')->first();
+        $testimonialsSectionBlock = ContentBlock::where('key', 'testimonials_section')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->testimonialsSectionData = $testimonialsSectionBlock?->data ?? [];
 
-        $contactPageBlock = ContentBlock::where('key', 'contact_page')->first();
+        $contactPageBlock = ContentBlock::where('key', 'contact_page')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->contactPageData = $contactPageBlock?->data ?? [];
 
-        $faqPageHeaderBlock = ContentBlock::where('key', 'faq_page_header')->first();
+        $faqPageHeaderBlock = ContentBlock::where('key', 'faq_page_header')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first();
         $this->faqPageHeaderData = $faqPageHeaderBlock?->data ?? [];
 
-        $this->legalContentData = [
-            'legal' => ContentBlock::where('key', 'legal_legal')->first()?->data ?? [
+        $defaultLegal = [
+            'legal' => [
                 'title' => 'Mentions légales',
                 'sections' => [
                     ['heading' => 'Éditeur', 'body' => 'MAISON LUNE · 12 rue Saint-Honoré, 75001 Paris'],
@@ -97,7 +112,7 @@ class ManageContent extends Page
                     ['heading' => 'Propriété intellectuelle', 'body' => "L'ensemble du site (textes, images, logos, graphismes) est protégé par le droit d'auteur et est la propriété exclusive de MAISON LUNE."],
                 ],
             ],
-            'cgv' => ContentBlock::where('key', 'legal_cgv')->first()?->data ?? [
+            'cgv' => [
                 'eyebrow' => 'Conditions',
                 'title' => 'Conditions générales de vente',
                 'subtitle' => 'Applicables aux clients professionnels de MAISON LUNE.',
@@ -112,7 +127,7 @@ class ManageContent extends Page
                     ['heading' => '8. Litiges', 'body' => 'Le droit français s\'applique. Tout litige relève de la compétence exclusive du Tribunal de Commerce de Paris.'],
                 ],
             ],
-            'privacy' => ContentBlock::where('key', 'legal_privacy')->first()?->data ?? [
+            'privacy' => [
                 'title' => 'Politique de confidentialité',
                 'subtitle' => 'Nous traitons vos données personnelles conformément au RGPD. MAISON LUNE.',
                 'sections' => [
@@ -123,7 +138,7 @@ class ManageContent extends Page
                     ['heading' => 'Cookies', 'body' => 'Nous utilisons uniquement des cookies strictement nécessaires au bon fonctionnement du site (panier, session).'],
                 ],
             ],
-            'shipping' => ContentBlock::where('key', 'legal_shipping')->first()?->data ?? [
+            'shipping' => [
                 'eyebrow' => 'Infos pro',
                 'title' => 'Livraison & retours',
                 'subtitle' => 'Nos engagements logistiques pour nos partenaires revendeurs. MAISON LUNE.',
@@ -136,6 +151,22 @@ class ManageContent extends Page
                 ],
             ],
         ];
+
+        $this->legalContentData = [
+            'legal' => ContentBlock::where('key', 'legal_legal')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first()?->data ?? $defaultLegal['legal'],
+            'cgv' => ContentBlock::where('key', 'legal_cgv')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first()?->data ?? $defaultLegal['cgv'],
+            'privacy' => ContentBlock::where('key', 'legal_privacy')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first()?->data ?? $defaultLegal['privacy'],
+            'shipping' => ContentBlock::where('key', 'legal_shipping')->when($siteId, fn($q) => $q->where('site_id', $siteId))->first()?->data ?? $defaultLegal['shipping'],
+        ];
+    }
+
+    private function saveContentBlock(string $key, array $data): void
+    {
+        $attrs = ['key' => $key];
+        if ($this->selectedSiteId) {
+            $attrs['site_id'] = $this->selectedSiteId;
+        }
+        ContentBlock::updateOrCreate($attrs, ['data' => $data]);
     }
 
     public function saveHero(): void
@@ -150,10 +181,7 @@ class ManageContent extends Page
             $this->heroImageFile = null;
         }
 
-        ContentBlock::updateOrCreate(
-            ['key' => 'hero'],
-            ['data' => $this->heroData]
-        );
+        $this->saveContentBlock('hero', $this->heroData);
 
         Notification::make()
             ->title('Section Hero enregistrée')
@@ -173,10 +201,7 @@ class ManageContent extends Page
             $this->atelierImageFile = null;
         }
 
-        ContentBlock::updateOrCreate(
-            ['key' => 'atelier'],
-            ['data' => $this->atelierData]
-        );
+        $this->saveContentBlock('atelier', $this->atelierData);
 
         Notification::make()
             ->title('Section Atelier enregistrée')
@@ -186,10 +211,7 @@ class ManageContent extends Page
 
     public function savePromises(): void
     {
-        ContentBlock::updateOrCreate(
-            ['key' => 'promises'],
-            ['data' => $this->promisesData]
-        );
+        $this->saveContentBlock('promises', $this->promisesData);
 
         Notification::make()
             ->title('Section Promesses enregistrée')
@@ -213,10 +235,7 @@ class ManageContent extends Page
 
     public function saveCategoriesSection(): void
     {
-        ContentBlock::updateOrCreate(
-            ['key' => 'categories_section'],
-            ['data' => $this->categoriesSectionData]
-        );
+        $this->saveContentBlock('categories_section', $this->categoriesSectionData);
 
         Notification::make()
             ->title('Section Catégories enregistrée')
@@ -226,10 +245,7 @@ class ManageContent extends Page
 
     public function saveProductGridSection(): void
     {
-        ContentBlock::updateOrCreate(
-            ['key' => 'product_grid_section'],
-            ['data' => $this->productGridSectionData]
-        );
+        $this->saveContentBlock('product_grid_section', $this->productGridSectionData);
 
         Notification::make()
             ->title('Section Best-sellers enregistrée')
@@ -239,10 +255,7 @@ class ManageContent extends Page
 
     public function saveNewByUniverseSection(): void
     {
-        ContentBlock::updateOrCreate(
-            ['key' => 'new_by_universe_section'],
-            ['data' => $this->newByUniverseSectionData]
-        );
+        $this->saveContentBlock('new_by_universe_section', $this->newByUniverseSectionData);
 
         Notification::make()
             ->title('Section Nouveautés enregistrée')
@@ -252,10 +265,7 @@ class ManageContent extends Page
 
     public function saveTestimonialsSection(): void
     {
-        ContentBlock::updateOrCreate(
-            ['key' => 'testimonials_section'],
-            ['data' => $this->testimonialsSectionData]
-        );
+        $this->saveContentBlock('testimonials_section', $this->testimonialsSectionData);
 
         Notification::make()
             ->title('Section Témoignages enregistrée')
@@ -265,10 +275,7 @@ class ManageContent extends Page
 
     public function saveContactPage(): void
     {
-        ContentBlock::updateOrCreate(
-            ['key' => 'contact_page'],
-            ['data' => $this->contactPageData]
-        );
+        $this->saveContentBlock('contact_page', $this->contactPageData);
 
         Notification::make()
             ->title('Page Contact enregistrée')
@@ -278,10 +285,7 @@ class ManageContent extends Page
 
     public function saveFAQPageHeader(): void
     {
-        ContentBlock::updateOrCreate(
-            ['key' => 'faq_page_header'],
-            ['data' => $this->faqPageHeaderData]
-        );
+        $this->saveContentBlock('faq_page_header', $this->faqPageHeaderData);
 
         Notification::make()
             ->title('En-tête FAQ enregistré')
@@ -293,10 +297,7 @@ class ManageContent extends Page
     {
         foreach (['legal', 'cgv', 'privacy', 'shipping'] as $page) {
             if (isset($this->legalContentData[$page])) {
-                ContentBlock::updateOrCreate(
-                    ['key' => "legal_{$page}"],
-                    ['data' => $this->legalContentData[$page]]
-                );
+                $this->saveContentBlock("legal_{$page}", $this->legalContentData[$page]);
             }
         }
 
