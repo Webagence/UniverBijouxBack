@@ -38,6 +38,7 @@ class SiteSetting extends Model
 
     public function getValueAttribute(mixed $value): mixed
     {
+        if (is_array($value)) return $value;
         return json_decode($value ?? 'null', true);
     }
 }

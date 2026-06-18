@@ -44,6 +44,7 @@ class ContentBlock extends Model
 
     public function getDataAttribute(mixed $value): array
     {
+        if (is_array($value)) return $value;
         return json_decode($value ?? '{}', true) ?? [];
     }
 }
