@@ -21,6 +21,18 @@
 
         {{-- Hero --}}
         <x-filament::section heading="Hero" description="Bannière principale du portail" collapsible>
+            <div class="mb-6">
+                <label class="block text-sm font-medium mb-2">Image de fond du hero</label>
+                @if($heroImageUrl)
+                    <div class="relative inline-block mb-3">
+                        <img src="{{ $heroImageUrl }}" class="h-40 object-cover rounded-lg border w-auto">
+                        <button type="button" wire:click="removeHeroImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">×</button>
+                    </div>
+                @endif
+                <input type="file" wire:model="heroImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                <p class="text-xs text-gray-500 mt-1">JPEG, PNG ou WebP (max 10MB). Ratio 16:9 recommandé.</p>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <x-filament::input.wrapper label="Badge">
                     <x-filament::input type="text" wire:model="data.hero_badge" placeholder="Maison Française depuis 2008" />
@@ -56,6 +68,29 @@
 
         {{-- Section Univers --}}
         <x-filament::section heading="Section Univers" description="Deux cartes : Pierres & Bijoux" collapsible>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div>
+                    <label class="block text-sm font-medium mb-2">Image — Carte Pierres</label>
+                    @if($gemsImageUrl)
+                        <div class="relative inline-block mb-3">
+                            <img src="{{ $gemsImageUrl }}" class="h-32 object-cover rounded-lg border w-auto">
+                            <button type="button" wire:click="removeGemsImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">×</button>
+                        </div>
+                    @endif
+                    <input type="file" wire:model="gemsImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-2">Image — Carte Bijoux</label>
+                    @if($jewelryImageUrl)
+                        <div class="relative inline-block mb-3">
+                            <img src="{{ $jewelryImageUrl }}" class="h-32 object-cover rounded-lg border w-auto">
+                            <button type="button" wire:click="removeJewelryImage" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600">×</button>
+                        </div>
+                    @endif
+                    <input type="file" wire:model="jewelryImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <x-filament::input.wrapper label="Surtitre section">
                     <x-filament::input type="text" wire:model="data.univ_kicker" placeholder="Deux Univers" />
