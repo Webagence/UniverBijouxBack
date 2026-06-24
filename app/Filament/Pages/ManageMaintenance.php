@@ -17,23 +17,23 @@ class ManageMaintenance extends Page
 
     protected static string $view = 'filament.pages.manage-maintenance';
 
-    public bool $maintenanceMode = false;
+    public string $maintenanceMode = '0';
 
     public string $maintenanceMessage = '';
 
     public function mount(): void
     {
-        $this->maintenanceMode = file_exists('/var/www/francegems.com/maintenance.flag');
+        $this->maintenanceMode = file_exists('/var/www/francegems.com/maintenance.flag') ? '1' : '0';
         $message = @file_get_contents('/var/www/francegems.com/maintenance/message.txt');
         $this->maintenanceMessage = $message ?: 'Notre équipe améliore actuellement la plateforme pour vous offrir une expérience encore plus exceptionnelle. Le site sera de retour très prochainement.';
     }
 
     public function save(): void
     {
-        if ($this->maintenanceMode) {
-            touch('/var/www/francegems.com/maintenance.flag');
+        if ($this->maintenanceMode === '1') {
+            exec('sudo touch /var/www/francegems.com/maintenance.flag');
         } else {
-            @unlink('/var/www/francegems.com/maintenance.flag');
+            exec('sudo rm -f /var/www/francegems.com/maintenance.flag');
         }
 
         file_put_contents('/var/www/francegems.com/maintenance/message.txt', $this->maintenanceMessage);
