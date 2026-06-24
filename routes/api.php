@@ -24,6 +24,9 @@ Route::prefix('auth')->group(function () {
 // Public carriers
 Route::get('/carriers', [App\Http\Controllers\Api\CarrierController::class, 'index']);
 
+// Maintenance subscription (public)
+Route::post('/maintenance/subscribe', [App\Http\Controllers\Api\MaintenanceController::class, 'subscribe']);
+
 // Public content routes
 Route::prefix('content')->group(function () {
     Route::get('/hero', [ContentController::class, 'hero']);
