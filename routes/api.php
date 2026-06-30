@@ -27,6 +27,9 @@ Route::get('/carriers', [App\Http\Controllers\Api\CarrierController::class, 'ind
 // Maintenance subscription (public)
 Route::post('/maintenance/subscribe', [App\Http\Controllers\Api\MaintenanceController::class, 'subscribe']);
 
+// Page view tracking (public)
+Route::post('/track', [App\Http\Controllers\Api\TrackController::class, 'visit']);
+
 // Public content routes
 Route::prefix('content')->group(function () {
     Route::get('/hero', [ContentController::class, 'hero']);

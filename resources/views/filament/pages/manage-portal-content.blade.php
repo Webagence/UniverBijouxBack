@@ -31,6 +31,11 @@
                 @endif
                 <input type="file" wire:model="heroImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
                 <p class="text-xs text-gray-500 mt-1">JPEG, PNG ou WebP (max 10MB). Ratio 16:9 recommandé.</p>
+                <div class="mt-2">
+                    <x-filament::input.wrapper label="Ou URL directe">
+                        <x-filament::input type="text" wire:model="data.hero_image" placeholder="https://..." />
+                    </x-filament::input.wrapper>
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -78,6 +83,11 @@
                         </div>
                     @endif
                     <input type="file" wire:model="gemsImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                    <div class="mt-2">
+                        <x-filament::input.wrapper label="Ou URL directe">
+                            <x-filament::input type="text" wire:model="data.univ_gems_image" placeholder="https://..." />
+                        </x-filament::input.wrapper>
+                    </div>
                 </div>
                 <div>
                     <label class="block text-sm font-medium mb-2">Image — Carte Bijoux</label>
@@ -88,6 +98,11 @@
                         </div>
                     @endif
                     <input type="file" wire:model="jewelryImageFile" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100">
+                    <div class="mt-2">
+                        <x-filament::input.wrapper label="Ou URL directe">
+                            <x-filament::input type="text" wire:model="data.univ_jewelry_image" placeholder="https://..." />
+                        </x-filament::input.wrapper>
+                    </div>
                 </div>
             </div>
 
