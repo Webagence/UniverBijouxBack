@@ -59,17 +59,34 @@
     {{-- 14 derniers jours --}}
     <x-filament::section heading="Vues (14 derniers jours)" class="mt-8">
         @if(count($data['byDay']) > 0)
-            <div class="flex items-end gap-2 h-32">
-                @foreach(array_reverse($data['byDay']) as $day => $count)
-                    @php
-                        $max = max($data['byDay']) ?: 1;
-                        $h = round($count / $max * 100);
-                    @endphp
-                    <div class="flex-1 flex flex-col items-center">
-                        <div class="w-full bg-primary-500 rounded-t" style="height: {{ $h }}%"></div>
-                        <div class="text-[10px] text-gray-500 mt-1 transform -rotate-45 origin-left">{{ substr($day, 5) }}</div>
-                    </div>
-                @endforeach
+            @php $max = max($data['byDay']) ?: 1; @endphp
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b dark:border-gray-700">
+                            <th class="text-left py-2 px-2">Jour</th>
+                            <th class="text-right py-2 px-2">Vues</th>
+                            <th class="py-2 px-2 w-full"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(array_reverse($data['byDay']) as $day => $count)
+                            @php
+                                $pct = $max > 0 ? round($count / $max * 100) : 0;
+                                $isToday = $day === date('Y-m-d');
+                            @endphp
+                            <tr class="border-b dark:border-gray-700 last:border-0">
+                                <td class="py-1.5 px-2 text-xs {{ $isToday ? 'font-semibold' : '' }}">{{ $day }}</td>
+                                <td class="py-1.5 px-2 text-xs text-right font-mono">{{ $count }}</td>
+                                <td class="py-1.5 px-2 w-full">
+                                    <div class="w-full bg-gray-100 dark:bg-gray-800 rounded-full h-5 overflow-hidden">
+                                        <div class="h-full rounded-full {{ $isToday ? 'bg-warning-500' : 'bg-primary-500' }}" style="width: {{ $pct }}%; min-width: {{ $count > 0 ? '4px' : '0' }}"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         @else
             <p class="text-sm text-gray-500">Aucune donnée</p>

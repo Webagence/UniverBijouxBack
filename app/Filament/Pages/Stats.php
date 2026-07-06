@@ -27,8 +27,20 @@ class Stats extends Page
         $bySite = PageView::select('site', DB::raw('count(*) as c'))
             ->groupBy('site')->orderByDesc('c')->get()->pluck('c', 'site')->toArray();
 
-        $byDay = PageView::select(DB::raw('DATE(visited_at) as day'), DB::raw('count(*) as c'))
-            ->groupBy('day')->orderByDesc('day')->take(14)->get()->pluck('c', 'day')->toArray();
+        // Generate 14 days with 0 for empty days
+        $byDay = [];
+        for ($i = 13; $i >= 0; $i--) {
+            $day = today()->subDays($i)->format('Y-m-d');
+            $byDay[$day] = 0;
+        }
+        $realData = PageView::select(DB::raw('DATE(visited_at) as day'), DB::raw('count(*) as c'))
+            ->where('visited_at', '>=', today()->subDays(13))
+            ->groupBy('day')->get()->pluck('c', 'day')->toArray();
+        foreach ($realData as $day => $count) {
+            if (isset($byDay[$day])) {
+                $byDay[$day] = $count;
+            }
+        }
 
         $topPaths = PageView::select('path', DB::raw('count(*) as c'))
             ->groupBy('path')->orderByDesc('c')->take(10)->get()->toArray();
