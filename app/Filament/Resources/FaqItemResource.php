@@ -9,6 +9,7 @@ use App\Models\Site;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use App\Traits\HasFilamentPermissions;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class FaqItemResource extends Resource
 {
+    use HasFilamentPermissions;
     protected static ?string $model = FaqItem::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-question-mark-circle';

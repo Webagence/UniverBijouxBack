@@ -7,11 +7,13 @@ use App\Models\Site;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use App\Traits\HasFilamentPermissions;
 use Filament\Tables;
 use Filament\Tables\Table;
 
 class SiteResource extends Resource
 {
+    use HasFilamentPermissions;
     protected static ?string $model = Site::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-alt';

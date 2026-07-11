@@ -10,12 +10,14 @@ use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use App\Traits\HasFilamentPermissions;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 
 class DiscountResource extends Resource
 {
+    use HasFilamentPermissions;
     protected static ?string $model = Discount::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';

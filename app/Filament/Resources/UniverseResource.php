@@ -8,12 +8,14 @@ use App\Models\Universe;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use App\Traits\HasFilamentPermissions;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 
 class UniverseResource extends Resource
 {
+    use HasFilamentPermissions;
     protected static ?string $model = Universe::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-group';

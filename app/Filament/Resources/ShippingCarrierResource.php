@@ -7,11 +7,13 @@ use App\Models\ShippingCarrier;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use App\Traits\HasFilamentPermissions;
 use Filament\Tables;
 use Filament\Tables\Table;
 
 class ShippingCarrierResource extends Resource
 {
+    use HasFilamentPermissions;
     protected static ?string $model = ShippingCarrier::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-truck';
