@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ImageOptimizer;
 use App\Traits\Translatable;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -91,6 +92,38 @@ class Product extends Model
         static::updating(function ($product) {
             if ($product->isDirty('name') && empty($product->slug)) {
                 $product->slug = Str::slug($product->name);
+            }
+        });
+
+        static::saved(function ($product) {
+            $images = $product->images ?? [];
+            if (!is_array($images)) {
+                $images = json_decode($images, true) ?? [];
+            }
+            if (empty($images)) return;
+
+            $optimizer = app(ImageOptimizer::class);
+            $changed = false;
+
+            foreach ($images as &$img) {
+                if (empty($img)) continue;
+                if (str_ends_with($img, '.webp')) continue;
+
+                $path = str_replace(Storage::url(''), '', $img);
+                $fullPath = Storage::disk('public')->path($path);
+
+                if (!file_exists($fullPath)) continue;
+
+                $result = $optimizer->optimize($fullPath);
+                if ($result) {
+                    $img = Storage::disk('public')->url($result);
+                    $changed = true;
+                }
+            }
+
+            if ($changed) {
+                $product->images = $images;
+                $product->saveQuietly();
             }
         });
     }
