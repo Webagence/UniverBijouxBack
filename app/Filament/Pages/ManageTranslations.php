@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Cache;
 class ManageTranslations extends Page implements Tables\Contracts\HasTable
 {
     use Tables\Concerns\InteractsWithTable;
+    use HasFilamentPageAccess;
 
     protected static ?string $navigationIcon = 'heroicon-o-language';
 
