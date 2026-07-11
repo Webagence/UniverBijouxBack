@@ -148,16 +148,28 @@ class ProductImportService
         $hNew = array_search('is_new', $headers);
         $hActive = array_search('active', $headers);
 
+        // Limit errors to prevent memory overflow
+        $maxErrors = 50;
+
         for ($i = 1; $i < count($rows); $i++) {
             $row = $rows[$i];
-            $results['total']++;
             $lineNum = $i + 1;
 
             $siteSlug = $hSite !== false ? trim((string)($row[$hSite] ?? '')) : '';
             $name = $hName !== false ? trim((string)($row[$hName] ?? '')) : '';
+            $universeSlugCheck = $hUniverse !== false ? trim((string)($row[$hUniverse] ?? '')) : '';
+
+            // Skip completely empty rows (no name and no universe and no site)
+            if (empty($name) && empty($siteSlug) && empty($universeSlugCheck)) {
+                continue;
+            }
+
+            $results['total']++;
 
             if (empty($name)) {
-                $results['errors'][] = "Ligne {$lineNum}: le champ 'name' est obligatoire";
+                if (count($results['errors']) < $maxErrors) {
+                    $results['errors'][] = "Ligne {$lineNum}: le champ 'name' est obligatoire";
+                }
                 continue;
             }
 
@@ -166,9 +178,11 @@ class ProductImportService
                 continue;
             }
 
-            $siteId = $this->sites[$siteSlug] ?? null;
+            $siteId = $this->sites[strtolower($siteSlug)] ?? null;
             if (!$siteId) {
-                $results['errors'][] = "Ligne {$lineNum}: site '{$siteSlug}' invalide";
+                if (count($results['errors']) < $maxErrors) {
+                    $results['errors'][] = "Ligne {$lineNum}: site '{$siteSlug}' invalide";
+                }
                 continue;
             }
 
@@ -179,9 +193,11 @@ class ProductImportService
             if ($hUniverse !== false) {
                 $universeSlug = trim((string)($row[$hUniverse] ?? ''));
                 if (!empty($universeSlug)) {
-                    $universeId = $this->universes[$universeSlug] ?? null;
+                    $universeId = $this->universes[strtolower($universeSlug)] ?? null;
                     if (!$universeId) {
-                        $results['errors'][] = "Ligne {$lineNum}: univers '{$universeSlug}' invalide";
+                        if (count($results['errors']) < $maxErrors) {
+                            $results['errors'][] = "Ligne {$lineNum}: univers '{$universeSlug}' invalide. Slug disponible: " . implode(', ', array_keys($this->universes));
+                        }
                         continue;
                     }
                 }
