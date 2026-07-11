@@ -101,15 +101,15 @@ class RolePermissionSeeder extends Seeder
             'view_discount', 'create_discount', 'edit_discount', 'delete_discount',
         ]);
 
-        // ── 2. Order Manager ────────────────────────────────────────────
+        // ── 2. Order Manager (Ventes + Livraison) ──────────────────────
         $ord = Role::create(['name' => 'order_manager', 'guard_name' => 'web']);
         $ord->givePermissionTo([
             'view_order', 'edit_order_status', 'prepare_order',
             'generate_invoice', 'generate_delivery_note', 'print_order',
+            'view_invoice',
+            'view_discount',
             'assign_carrier', 'generate_shipment', 'add_tracking_number', 'edit_shipping_status',
-            'view_user', 'view_user_orders',
             'view_shipping_carrier',
-            'view_manage_shippingbo',
         ]);
 
         // ── 3. Customer Support (Support uniquement) ────────────────────
