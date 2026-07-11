@@ -35,7 +35,7 @@ class RolePermissionSeeder extends Seeder
             'view_stock', 'modify_stock', 'import_stock',
             'view_import_products',
             'view_discount', 'create_discount', 'edit_discount', 'delete_discount',
-            'view_site',
+            'view_site', 'create_site', 'edit_site', 'delete_site',
 
             // Commandes
             'view_order', 'create_order', 'edit_order', 'delete_order', 'edit_order_status',
@@ -122,21 +122,14 @@ class RolePermissionSeeder extends Seeder
             'view_faq_item', 'create_faq_item', 'edit_faq_item', 'delete_faq_item',
         ]);
 
-        // ── 4. Content Manager ──────────────────────────────────────────
+        // ── 4. Content Manager (Contenu, Portail, Sites uniquement) ────
         $cnt = Role::create(['name' => 'content_manager', 'guard_name' => 'web']);
         $cnt->givePermissionTo([
             'view_manage_content', 'edit_manage_content',
             'view_manage_portal_content', 'edit_manage_portal_content',
-            'view_manage_settings', 'edit_manage_settings',
-            'view_blog', 'create_blog', 'edit_blog', 'publish_blog', 'unpublish_blog', 'delete_blog',
-            'view_media', 'create_media', 'edit_media', 'delete_media',
-            'edit_seo_tags', 'edit_seo_metadata', 'edit_menu',
             'view_testimonial', 'create_testimonial', 'edit_testimonial', 'delete_testimonial',
             'view_faq_item', 'create_faq_item', 'edit_faq_item', 'delete_faq_item',
-            'view_manage_translations',
-            'view_manage_maintenance', 'edit_manage_maintenance',
-            'view_maintenance_subscriber', 'delete_maintenance_subscriber',
-            'view_stats',
+            'view_site', 'create_site', 'edit_site', 'delete_site',
         ]);
 
         // ── Rôle API pour les clients B2B ──────────────────────────────
