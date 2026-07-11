@@ -2,11 +2,13 @@
 
 namespace App\Filament\Pages;
 
+use App\Traits\HasFilamentPageAccess;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
 class ManageMaintenance extends Page
 {
+    use HasFilamentPageAccess;
     protected static ?string $navigationIcon = 'heroicon-o-wrench-screwdriver';
 
     protected static ?string $navigationLabel = 'Maintenance';

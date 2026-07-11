@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Traits\HasFilamentPageAccess;
 use App\Services\ProductImportService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -11,6 +12,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ImportProducts extends Page
 {
+    use HasFilamentPageAccess;
     use WithFileUploads;
 
     protected static ?string $navigationIcon = 'heroicon-o-arrow-up-tray';

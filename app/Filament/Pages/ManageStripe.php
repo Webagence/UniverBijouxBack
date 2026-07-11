@@ -2,12 +2,14 @@
 
 namespace App\Filament\Pages;
 
+use App\Traits\HasFilamentPageAccess;
 use App\Models\SiteSetting;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
 class ManageStripe extends Page
 {
+    use HasFilamentPageAccess;
     protected static ?string $navigationIcon = 'heroicon-o-credit-card';
 
     protected static ?string $navigationLabel = 'Stripe';

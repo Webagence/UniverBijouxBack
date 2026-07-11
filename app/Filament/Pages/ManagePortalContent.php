@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Traits\HasFilamentPageAccess;
 use App\Models\ContentBlock;
 use App\Models\Site;
 use App\Services\ImageOptimizer;
@@ -12,6 +13,7 @@ use Livewire\WithFileUploads;
 
 class ManagePortalContent extends Page
 {
+    use HasFilamentPageAccess;
     use WithFileUploads;
 
     protected static ?string $navigationIcon = 'heroicon-o-globe-alt';

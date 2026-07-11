@@ -2,12 +2,14 @@
 
 namespace App\Filament\Pages;
 
+use App\Traits\HasFilamentPageAccess;
 use App\Models\PageView;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\DB;
 
 class Stats extends Page
 {
+    use HasFilamentPageAccess;
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
 
     protected static ?string $navigationLabel = 'Statistiques';

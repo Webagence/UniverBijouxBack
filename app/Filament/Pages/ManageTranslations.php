@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Traits\HasFilamentPageAccess;
 use App\Models\TranslationBatch;
 use Filament\Forms;
 use Filament\Forms\Form;

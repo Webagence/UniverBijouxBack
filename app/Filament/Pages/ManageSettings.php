@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Traits\HasFilamentPageAccess;
 use App\Models\SiteSetting;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
@@ -10,6 +11,7 @@ use Livewire\WithFileUploads;
 
 class ManageSettings extends Page
 {
+    use HasFilamentPageAccess;
     use WithFileUploads;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';

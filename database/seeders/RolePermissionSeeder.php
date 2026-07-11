@@ -99,8 +99,6 @@ class RolePermissionSeeder extends Seeder
             'view_stock', 'modify_stock', 'import_stock',
             'view_import_products',
             'view_discount', 'create_discount', 'edit_discount', 'delete_discount',
-            'view_site',
-            'view_stats',
         ]);
 
         // ── 2. Order Manager ────────────────────────────────────────────

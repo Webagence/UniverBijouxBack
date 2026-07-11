@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Traits\HasFilamentPageAccess;
 use App\Models\ShippingboSetting;
 use App\Services\ShippingboService;
 use Filament\Notifications\Notification;
@@ -9,6 +10,7 @@ use Filament\Pages\Page;
 
 class ManageShippingbo extends Page
 {
+    use HasFilamentPageAccess;
     protected static ?string $navigationIcon = 'heroicon-o-truck';
 
     protected static ?string $navigationLabel = 'Shippingbo';
