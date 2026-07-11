@@ -112,14 +112,10 @@ class RolePermissionSeeder extends Seeder
             'view_manage_shippingbo',
         ]);
 
-        // ── 3. Customer Support ─────────────────────────────────────────
+        // ── 3. Customer Support (Support uniquement) ────────────────────
         $sup = Role::create(['name' => 'customer_support', 'guard_name' => 'web']);
         $sup->givePermissionTo([
-            'view_user', 'edit_user', 'disable_user_account', 'view_user_orders',
-            'view_order', 'add_order_comment', 'edit_order_status',
-            'manage_return', 'manage_refund',
             'view_ticket', 'create_ticket', 'edit_ticket', 'delete_ticket', 'reply_ticket',
-            'view_faq_item', 'create_faq_item', 'edit_faq_item', 'delete_faq_item',
         ]);
 
         // ── 4. Content Manager (Contenu, Portail, Sites uniquement) ────
