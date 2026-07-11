@@ -4,6 +4,7 @@ namespace App\Filament\Pages;
 
 use App\Models\ContentBlock;
 use App\Models\Site;
+use App\Services\ImageOptimizer;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Facades\Storage;
@@ -56,23 +57,31 @@ class ManagePortalContent extends Page
             'jewelryImageFile' => 'nullable|image|max:10240',
         ]);
 
+        $optimizer = app(ImageOptimizer::class);
+
         if ($this->heroImageFile) {
             $path = $this->heroImageFile->store('portal/hero', 'public');
-            $this->heroImageUrl = Storage::url($path);
+            $fullPath = Storage::disk('public')->path($path);
+            $optPath = $optimizer->optimize($fullPath);
+            $this->heroImageUrl = Storage::url($optPath ?? $path);
             $this->data['hero_image'] = $this->heroImageUrl;
             $this->heroImageFile = null;
         }
 
         if ($this->gemsImageFile) {
             $path = $this->gemsImageFile->store('portal/univers', 'public');
-            $this->gemsImageUrl = Storage::url($path);
+            $fullPath = Storage::disk('public')->path($path);
+            $optPath = $optimizer->optimize($fullPath);
+            $this->gemsImageUrl = Storage::url($optPath ?? $path);
             $this->data['univ_gems_image'] = $this->gemsImageUrl;
             $this->gemsImageFile = null;
         }
 
         if ($this->jewelryImageFile) {
             $path = $this->jewelryImageFile->store('portal/univers', 'public');
-            $this->jewelryImageUrl = Storage::url($path);
+            $fullPath = Storage::disk('public')->path($path);
+            $optPath = $optimizer->optimize($fullPath);
+            $this->jewelryImageUrl = Storage::url($optPath ?? $path);
             $this->data['univ_jewelry_image'] = $this->jewelryImageUrl;
             $this->jewelryImageFile = null;
         }
