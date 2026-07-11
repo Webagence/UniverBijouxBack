@@ -8,10 +8,11 @@ use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable implements FilamentUser
 {
-    use HasApiTokens, HasFactory, Notifiable, HasUuids;
+    use HasApiTokens, HasFactory, Notifiable, HasUuids, HasRoles;
 
     protected $fillable = [
         'name',
@@ -41,16 +42,6 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'approved' => 'boolean',
         ];
-    }
-
-    public function roles()
-    {
-        return $this->belongsToMany(Role::class, 'user_roles');
-    }
-
-    public function hasRole(string $role): bool
-    {
-        return $this->roles()->where('name', $role)->exists();
     }
 
     public function isAdmin(): bool
@@ -103,6 +94,6 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessPanel(\Filament\Panel $panel): bool
     {
-        return $this->isAdmin();
+        return $this->hasRole(['admin', 'catalog_manager', 'order_manager', 'customer_support', 'content_manager']);
     }
 }

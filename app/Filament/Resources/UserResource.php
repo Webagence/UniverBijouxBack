@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
-use App\Models\Role;
+use Spatie\Permission\Models\Role;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -64,7 +64,7 @@ class UserResource extends Resource
                         Forms\Components\CheckboxList::make('roles')
                             ->label('Rôles')
                             ->relationship('roles', 'name')
-                            ->options(Role::pluck('label', 'id'))
+                            ->options(Role::pluck('name', 'id'))
                             ->descriptions(Role::all()->pluck('name', 'id')->map(fn ($name) => match ($name) {
                                 'admin' => 'Accès complet au panel admin',
                                 'pro' => 'Client professionnel B2B',
