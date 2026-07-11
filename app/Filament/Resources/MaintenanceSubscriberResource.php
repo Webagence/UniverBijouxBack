@@ -4,12 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\MaintenanceSubscriberResource\Pages;
 use App\Models\MaintenanceSubscriber;
+use App\Traits\HasFilamentPermissions;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 
 class MaintenanceSubscriberResource extends Resource
 {
+    use HasFilamentPermissions;
     protected static ?string $model = MaintenanceSubscriber::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-inbox';
