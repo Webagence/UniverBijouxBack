@@ -20,7 +20,7 @@ class ManageTranslations extends Page implements Tables\Contracts\HasTable
 
     protected static ?string $navigationLabel = 'Traductions';
 
-    protected static ?string $navigationGroup = 'Contenu';
+    protected static ?string $navigationGroup = 'Paramètres';
 
     protected static ?int $navigationSort = 5;
 

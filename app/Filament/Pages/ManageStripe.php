@@ -12,7 +12,7 @@ class ManageStripe extends Page
 
     protected static ?string $navigationLabel = 'Stripe';
 
-    protected static ?string $navigationGroup = 'Contenu';
+    protected static ?string $navigationGroup = 'Paramètres';
 
     protected static ?int $navigationSort = 5;
 
